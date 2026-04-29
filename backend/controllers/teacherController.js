@@ -2,6 +2,7 @@ import asyncHandler from 'express-async-handler';
 import Teacher from '../models/Teacher.js';
 import User from '../models/User.js';
 import { generateId } from '../utils/helpers.js';
+import { notifyTeacher, notify } from '../utils/notify.js';
 
 const gen6digit = () => Math.floor(100000 + Math.random() * 900000).toString();
 
@@ -17,6 +18,14 @@ export const createTeacher = asyncHandler(async (req, res) => {
   if (!existingUser) {
     await User.create({ name: teacher.fullName, email: loginEmail, password, role: 'teacher', linkedTeacher: teacher._id });
   }
+
+  notify({
+    title: 'New Teacher Added',
+    message: `${teacher.fullName} (${teacher.subject}) has been added as a teacher.`,
+    type: 'enrollment',
+    audience: 'admin',
+    createdBy: req.user._id,
+  });
 
   res.status(201).json({ ...teacher.toObject(), generatedPassword: password, loginEmail });
 });
@@ -46,13 +55,27 @@ export const getTeacher = asyncHandler(async (req, res) => {
 });
 
 export const updateTeacher = asyncHandler(async (req, res) => {
+  const prev = await Teacher.findById(req.params.id).lean();
   const data = { ...req.body };
   if (req.file) data.photo = `/uploads/${req.file.filename}`;
-  const teacher = await Teacher.findByIdAndUpdate(req.params.id, data, { new: true });
+  const teacher = await Teacher.findByIdAndUpdate(req.params.id, data, { new: true }).populate('assignedClasses', 'name');
   if (!teacher) {
     res.status(404);
     throw new Error('Teacher not found');
   }
+
+  const prevIds = (prev?.assignedClasses || []).map(String).sort().join();
+  const newIds = (data.assignedClasses || []).map(String).sort().join();
+  if (newIds && prevIds !== newIds) {
+    const classNames = teacher.assignedClasses.map((c) => c.name).join(', ');
+    notifyTeacher({
+      teacherId: teacher._id,
+      title: 'New Class Assigned',
+      message: `You have been assigned to: ${classNames}.`,
+      type: 'class_assigned',
+    });
+  }
+
   res.json(teacher);
 });
 

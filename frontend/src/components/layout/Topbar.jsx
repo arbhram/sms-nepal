@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Menu, Bell, Search, LogOut } from 'lucide-react';
+import { Menu, Search, LogOut } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
+import NotificationDropdown from '../ui/NotificationDropdown.jsx';
 
 export default function Topbar({ onMenuClick }) {
   const { user, logout } = useAuth();
@@ -29,10 +30,7 @@ export default function Topbar({ onMenuClick }) {
           />
         </div>
 
-        <button className="relative p-2 rounded-xl hover:bg-slate-100">
-          <Bell size={18} />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full" />
-        </button>
+        <NotificationDropdown userId={user?._id} />
 
         <div className="relative">
           <button

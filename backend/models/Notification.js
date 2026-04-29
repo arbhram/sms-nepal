@@ -6,7 +6,7 @@ const notificationSchema = new mongoose.Schema(
     message: { type: String, required: true },
     type: {
       type: String,
-      enum: ['fee', 'attendance', 'exam', 'general'],
+      enum: ['fee', 'payment', 'class_assigned', 'attendance', 'exam', 'enrollment', 'general'],
       default: 'general',
     },
     audience: {
@@ -14,6 +14,7 @@ const notificationSchema = new mongoose.Schema(
       enum: ['all', 'admin', 'teacher', 'student', 'parent'],
       default: 'all',
     },
+    recipient: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     readBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   },

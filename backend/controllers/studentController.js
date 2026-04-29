@@ -4,6 +4,7 @@ import User from '../models/User.js';
 import Fee from '../models/Fee.js';
 import Class from '../models/Class.js';
 import { generateId } from '../utils/helpers.js';
+import { notify } from '../utils/notify.js';
 
 const gen6digit = () => Math.floor(100000 + Math.random() * 900000).toString();
 
@@ -50,6 +51,14 @@ export const createStudent = asyncHandler(async (req, res) => {
   if (!existingUser) {
     await User.create({ name: student.fullName, email: loginEmail, password, role: 'student', linkedStudent: student._id });
   }
+
+  notify({
+    title: 'New Student Enrolled',
+    message: `${student.fullName} (${student.studentId}) has been enrolled.`,
+    type: 'enrollment',
+    audience: 'admin',
+    createdBy: req.user._id,
+  });
 
   res.status(201).json({ ...student.toObject(), generatedPassword: password, loginEmail });
 });

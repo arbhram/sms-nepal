@@ -2,6 +2,7 @@ import asyncHandler from 'express-async-handler';
 import Fee from '../models/Fee.js';
 import Student from '../models/Student.js';
 import { generateId } from '../utils/helpers.js';
+import { notifyStudent, notify } from '../utils/notify.js';
 
 // ─── Assign fee ───────────────────────────────────────────────────────────────
 // POST /api/fees
@@ -10,6 +11,17 @@ export const createFee = asyncHandler(async (req, res) => {
   if (!data.receiptNumber) data.receiptNumber = generateId('RCP');
   if (!data.academicYear) data.academicYear = `${new Date().getFullYear()}`;
   const fee = await Fee.create(data);
+
+  if (fee.student) {
+    notifyStudent({
+      studentId: fee.student,
+      title: 'New Fee Assigned',
+      message: `A new ${fee.category} fee of Rs. ${fee.totalAssignedFee} has been assigned${fee.dueDate ? ` (due ${new Date(fee.dueDate).toLocaleDateString()})` : ''}.`,
+      type: 'fee',
+      createdBy: req.user._id,
+    });
+  }
+
   res.status(201).json(fee);
 });
 
@@ -111,6 +123,26 @@ export const addPayment = asyncHandler(async (req, res) => {
 
   await fee.save(); // pre-save atomically recalculates totalPaid, remainingBalance, status
 
+  if (fee.student?._id) {
+    if (fee.status === 'Paid') {
+      notifyStudent({
+        studentId: fee.student._id,
+        title: 'All Dues Cleared',
+        message: `All dues cleared. Thank you! Rs. ${fee.totalPaid} total paid via ${paymentMethod}.`,
+        type: 'payment',
+        createdBy: req.user._id,
+      });
+    } else {
+      notifyStudent({
+        studentId: fee.student._id,
+        title: 'Payment Received',
+        message: `Rs. ${payAmount} received (${paymentMethod}). Remaining balance: Rs. ${fee.remainingBalance}.`,
+        type: 'payment',
+        createdBy: req.user._id,
+      });
+    }
+  }
+
   res.json({
     fee,
     receipt: {
@@ -198,6 +230,15 @@ export const bulkAssignFee = asyncHandler(async (req, res) => {
   }));
 
   const result = await Fee.insertMany(fees);
+
+  notify({
+    title: 'Fees Bulk Assigned',
+    message: `${category || 'Monthly'} fee of Rs. ${totalAssignedFee} assigned to ${result.length} students in the selected class.`,
+    type: 'fee',
+    audience: 'admin',
+    createdBy: req.user._id,
+  });
+
   res.status(201).json({ count: result.length, message: `Fee assigned to ${result.length} students` });
 });
 

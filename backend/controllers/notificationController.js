@@ -7,15 +7,48 @@ export const createNotification = asyncHandler(async (req, res) => {
 });
 
 export const getNotifications = asyncHandler(async (req, res) => {
-  const role = req.user.role;
-  const q = { $or: [{ audience: 'all' }, { audience: role }] };
-  const list = await Notification.find(q).sort({ createdAt: -1 }).limit(50);
+  const { role, _id } = req.user;
+  const list = await Notification.find({
+    $or: [
+      { recipient: _id },
+      { recipient: null, audience: { $in: ['all', role] } },
+    ],
+  })
+    .sort({ createdAt: -1 })
+    .limit(50);
   res.json(list);
+});
+
+export const getUnreadCount = asyncHandler(async (req, res) => {
+  const { role, _id } = req.user;
+  const count = await Notification.countDocuments({
+    $or: [
+      { recipient: _id },
+      { recipient: null, audience: { $in: ['all', role] } },
+    ],
+    readBy: { $ne: _id },
+  });
+  res.json({ count });
 });
 
 export const markRead = asyncHandler(async (req, res) => {
   await Notification.findByIdAndUpdate(req.params.id, { $addToSet: { readBy: req.user._id } });
   res.json({ message: 'Marked as read' });
+});
+
+export const markAllRead = asyncHandler(async (req, res) => {
+  const { role, _id } = req.user;
+  await Notification.updateMany(
+    {
+      $or: [
+        { recipient: _id },
+        { recipient: null, audience: { $in: ['all', role] } },
+      ],
+      readBy: { $ne: _id },
+    },
+    { $addToSet: { readBy: _id } }
+  );
+  res.json({ message: 'All marked as read' });
 });
 
 export const deleteNotification = asyncHandler(async (req, res) => {
