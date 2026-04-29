@@ -3,6 +3,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { BookOpen, Users, CalendarCheck, Award, Megaphone, LogOut, Menu, X, KeyRound } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import api from '../../api/axios.js';
+import NotificationDropdown from '../../components/ui/NotificationDropdown.jsx';
 
 const NAV = [
   { to: '/teacher/dashboard', icon: BookOpen, label: 'Dashboard' },
@@ -14,7 +15,7 @@ const NAV = [
 ];
 
 export default function TeacherPortal() {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [open, setOpen] = useState(false);
@@ -69,9 +70,12 @@ export default function TeacherPortal() {
       {open && <div className="fixed inset-0 z-30 bg-black/30 lg:hidden" onClick={() => setOpen(false)} />}
 
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="bg-white border-b px-4 py-3 flex items-center gap-3 lg:hidden">
-          <button onClick={() => setOpen(true)}><Menu size={20} /></button>
-          <span className="font-display font-bold text-slate-900">Teacher Portal</span>
+        <header className="bg-white border-b px-4 py-3 flex items-center gap-3">
+          <button onClick={() => setOpen(true)} className="lg:hidden"><Menu size={20} /></button>
+          <span className="font-display font-bold text-slate-900 lg:hidden">Teacher Portal</span>
+          <div className="ml-auto">
+            <NotificationDropdown userId={user?._id} />
+          </div>
         </header>
         <main className="flex-1 p-6 max-w-5xl w-full mx-auto">
           <Outlet context={{ profile }} />
