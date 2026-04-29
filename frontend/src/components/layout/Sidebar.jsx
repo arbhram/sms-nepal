@@ -8,6 +8,7 @@ import {
   CalendarCheck,
   ClipboardList,
   BarChart3,
+  Megaphone,
   Settings,
   X,
 } from 'lucide-react';
@@ -21,6 +22,7 @@ const nav = [
   { to: '/attendance', label: 'Attendance', icon: CalendarCheck },
   { to: '/exams', label: 'Exams', icon: ClipboardList },
   { to: '/reports', label: 'Reports', icon: BarChart3 },
+  { to: '/notices', label: 'Notice Board', icon: Megaphone },
   { to: '/settings', label: 'Settings', icon: Settings },
 ];
 

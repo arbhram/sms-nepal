@@ -18,6 +18,7 @@ import attendanceRoutes from './routes/attendanceRoutes.js';
 import examRoutes from './routes/examRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
+import noticeRoutes from './routes/noticeRoutes.js';
 import studentPortalRoutes from './routes/studentPortalRoutes.js';
 import teacherPortalRoutes from './routes/teacherPortalRoutes.js';
 
@@ -59,10 +60,11 @@ app.use('/api/attendance', attendanceRoutes);
 app.use('/api/exams', examRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/notices', noticeRoutes);
 app.use('/api/student-portal', studentPortalRoutes);
 app.use('/api/teacher-portal', teacherPortalRoutes);
 
-app.get('/', (req, res) => {
+app.get('/', (_req, res) => {
   res.json({ message: 'SMS Nepal API is running...', version: '1.0.0' });
 });
 

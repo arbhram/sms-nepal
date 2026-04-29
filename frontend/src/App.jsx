@@ -14,6 +14,7 @@ import Attendance from './pages/attendance/Attendance.jsx';
 import ExamList from './pages/exams/ExamList.jsx';
 import Reports from './pages/reports/Reports.jsx';
 import Settings from './pages/settings/Settings.jsx';
+import NoticeBoard from './pages/notices/NoticeBoard.jsx';
 
 import StudentPortal from './pages/student-portal/StudentPortal.jsx';
 import StudentDashboard from './pages/student-portal/StudentDashboard.jsx';
@@ -21,6 +22,7 @@ import StudentFees from './pages/student-portal/StudentFees.jsx';
 import StudentAttendance from './pages/student-portal/StudentAttendance.jsx';
 import StudentExams from './pages/student-portal/StudentExams.jsx';
 import StudentChangePassword from './pages/student-portal/StudentChangePassword.jsx';
+import StudentNotices from './pages/student-portal/StudentNotices.jsx';
 
 import TeacherPortal from './pages/teacher-portal/TeacherPortal.jsx';
 import TeacherDashboard from './pages/teacher-portal/TeacherDashboard.jsx';
@@ -28,6 +30,7 @@ import TeacherStudents from './pages/teacher-portal/TeacherStudents.jsx';
 import TeacherAttendance from './pages/teacher-portal/TeacherAttendance.jsx';
 import TeacherExams from './pages/teacher-portal/TeacherExams.jsx';
 import TeacherChangePassword from './pages/teacher-portal/TeacherChangePassword.jsx';
+import TeacherNotices from './pages/teacher-portal/TeacherNotices.jsx';
 
 function ProtectedAdmin({ children }) {
   const { user } = useAuth();
@@ -63,6 +66,7 @@ export default function App() {
         <Route path="fees" element={<StudentFees />} />
         <Route path="attendance" element={<StudentAttendance />} />
         <Route path="exams" element={<StudentExams />} />
+        <Route path="notices" element={<StudentNotices />} />
         <Route path="change-password" element={<StudentChangePassword />} />
       </Route>
 
@@ -73,6 +77,7 @@ export default function App() {
         <Route path="students" element={<TeacherStudents />} />
         <Route path="attendance" element={<TeacherAttendance />} />
         <Route path="exams" element={<TeacherExams />} />
+        <Route path="notices" element={<TeacherNotices />} />
         <Route path="change-password" element={<TeacherChangePassword />} />
       </Route>
 
@@ -92,6 +97,7 @@ export default function App() {
         <Route path="attendance" element={<Attendance />} />
         <Route path="exams" element={<ExamList />} />
         <Route path="reports" element={<Reports />} />
+        <Route path="notices" element={<NoticeBoard />} />
         <Route path="settings" element={<Settings />} />
       </Route>
 

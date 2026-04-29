@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { GraduationCap, Wallet, CalendarCheck, Award, LogOut, Menu, X, KeyRound } from 'lucide-react';
+import { GraduationCap, Wallet, CalendarCheck, Award, Megaphone, LogOut, Menu, X, KeyRound } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import api from '../../api/axios.js';
 
@@ -9,6 +9,7 @@ const NAV = [
   { to: '/student/fees', icon: Wallet, label: 'My Fees' },
   { to: '/student/attendance', icon: CalendarCheck, label: 'Attendance' },
   { to: '/student/exams', icon: Award, label: 'Exams & Results' },
+  { to: '/student/notices', icon: Megaphone, label: 'Notice Board' },
   { to: '/student/change-password', icon: KeyRound, label: 'Change Password' },
 ];
 
