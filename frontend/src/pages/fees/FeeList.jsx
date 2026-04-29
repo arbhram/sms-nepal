@@ -41,13 +41,15 @@ function updateItem(setter, idx, field, value) {
 // ─── Modal wrapper ────────────────────────────────────────────────────────────
 function Modal({ title, onClose, children, wide }) {
   return (
-    <div className="fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center p-4">
-      <div className={`bg-white rounded-2xl shadow-xl w-full ${wide ? 'max-w-2xl' : 'max-w-lg'} max-h-[92vh] flex flex-col`}>
-        <div className="flex items-center justify-between px-6 py-4 border-b">
-          <h3 className="font-display font-bold text-lg">{title}</h3>
-          <button onClick={onClose} className="p-1 rounded hover:bg-slate-100"><X size={18} /></button>
+    <div className="fixed inset-0 bg-slate-900/50 z-50 overflow-y-auto">
+      <div className="flex min-h-full items-center justify-center p-4">
+        <div className={`bg-white rounded-2xl shadow-xl w-full ${wide ? 'max-w-3xl' : 'max-w-xl'} max-h-[90vh] flex flex-col`}>
+          <div className="flex items-center justify-between px-7 py-5 border-b">
+            <h3 className="font-display font-bold text-xl">{title}</h3>
+            <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100"><X size={20} /></button>
+          </div>
+          <div className="overflow-y-auto flex-1 px-7 py-5">{children}</div>
         </div>
-        <div className="overflow-y-auto flex-1 px-6 py-4">{children}</div>
       </div>
     </div>
   );
