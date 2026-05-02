@@ -15,6 +15,12 @@ import ExamList from './pages/exams/ExamList.jsx';
 import Reports from './pages/reports/Reports.jsx';
 import Settings from './pages/settings/Settings.jsx';
 import NoticeBoard from './pages/notices/NoticeBoard.jsx';
+import ParentList from './pages/parents/ParentList.jsx';
+import Finance from './pages/finance/Finance.jsx';
+import Gradebook from './pages/exams/Gradebook.jsx';
+import TeacherGradebook from './pages/teacher-portal/TeacherGradebook.jsx';
+import ParentReportCard from './pages/parent-portal/ParentReportCard.jsx';
+import StudentReportCard from './pages/student-portal/StudentReportCard.jsx';
 
 import StudentPortal from './pages/student-portal/StudentPortal.jsx';
 import StudentDashboard from './pages/student-portal/StudentDashboard.jsx';
@@ -32,11 +38,20 @@ import TeacherExams from './pages/teacher-portal/TeacherExams.jsx';
 import TeacherChangePassword from './pages/teacher-portal/TeacherChangePassword.jsx';
 import TeacherNotices from './pages/teacher-portal/TeacherNotices.jsx';
 
+import ParentPortal from './pages/parent-portal/ParentPortal.jsx';
+import ParentDashboard from './pages/parent-portal/ParentDashboard.jsx';
+import ParentFees from './pages/parent-portal/ParentFees.jsx';
+import ParentAttendance from './pages/parent-portal/ParentAttendance.jsx';
+import ParentExams from './pages/parent-portal/ParentExams.jsx';
+import ParentNotices from './pages/parent-portal/ParentNotices.jsx';
+import ParentChangePassword from './pages/parent-portal/ParentChangePassword.jsx';
+
 function ProtectedAdmin({ children }) {
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
   if (user.role === 'student') return <Navigate to="/student/dashboard" replace />;
   if (user.role === 'teacher') return <Navigate to="/teacher/dashboard" replace />;
+  if (user.role === 'parent') return <Navigate to="/parent/dashboard" replace />;
   return children;
 }
 
@@ -54,6 +69,13 @@ function ProtectedTeacher({ children }) {
   return children;
 }
 
+function ProtectedParent({ children }) {
+  const { user } = useAuth();
+  if (!user) return <Navigate to="/login" replace />;
+  if (user.role !== 'parent') return <Navigate to="/" replace />;
+  return children;
+}
+
 export default function App() {
   return (
     <Routes>
@@ -67,6 +89,7 @@ export default function App() {
         <Route path="attendance" element={<StudentAttendance />} />
         <Route path="exams" element={<StudentExams />} />
         <Route path="notices" element={<StudentNotices />} />
+        <Route path="report-card" element={<StudentReportCard />} />
         <Route path="change-password" element={<StudentChangePassword />} />
       </Route>
 
@@ -78,7 +101,20 @@ export default function App() {
         <Route path="attendance" element={<TeacherAttendance />} />
         <Route path="exams" element={<TeacherExams />} />
         <Route path="notices" element={<TeacherNotices />} />
+        <Route path="gradebook" element={<TeacherGradebook />} />
         <Route path="change-password" element={<TeacherChangePassword />} />
+      </Route>
+
+      {/* Parent Portal */}
+      <Route path="/parent" element={<ProtectedParent><ParentPortal /></ProtectedParent>}>
+        <Route index element={<Navigate to="dashboard" replace />} />
+        <Route path="dashboard" element={<ParentDashboard />} />
+        <Route path="fees" element={<ParentFees />} />
+        <Route path="attendance" element={<ParentAttendance />} />
+        <Route path="exams" element={<ParentExams />} />
+        <Route path="notices" element={<ParentNotices />} />
+        <Route path="report-card" element={<ParentReportCard />} />
+        <Route path="change-password" element={<ParentChangePassword />} />
       </Route>
 
       {/* Admin Portal */}
@@ -98,6 +134,9 @@ export default function App() {
         <Route path="exams" element={<ExamList />} />
         <Route path="reports" element={<Reports />} />
         <Route path="notices" element={<NoticeBoard />} />
+        <Route path="parents" element={<ParentList />} />
+        <Route path="finance" element={<Finance />} />
+        <Route path="gradebook" element={<Gradebook />} />
         <Route path="settings" element={<Settings />} />
       </Route>
 

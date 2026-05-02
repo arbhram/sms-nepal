@@ -9,7 +9,7 @@ export const notify = async ({ title, message, type = 'general', audience = 'all
 
 export const notifyStudent = async ({ studentId, title, message, type = 'fee', createdBy = null }) => {
   try {
-    const user = await User.findOne({ linkedStudent: studentId }, '_id').lean();
+    const user = await User.findOne({ linkedStudents: studentId }, '_id').lean();
     if (user) {
       await Notification.create({ title, message, type, audience: 'student', recipient: user._id, createdBy });
     }

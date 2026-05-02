@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Plus, Search, Eye, Edit2, Trash2, Users, Download, KeyRound, Copy, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, Search, Eye, Edit2, Trash2, Users, Download, KeyRound, Copy, ChevronLeft, ChevronRight, ArrowUpCircle, X } from 'lucide-react';
 import api from '../../api/axios.js';
 import PageHeader from '../../components/ui/PageHeader.jsx';
 import { Loader, EmptyState, Badge } from '../../components/ui/Misc.jsx';
+import ConfirmModal from '../../components/ui/ConfirmModal.jsx';
 
 const PAGE_LIMIT = 20;
 
@@ -43,6 +44,11 @@ export default function StudentList() {
   const [credentials, setCredentials] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [total, setTotal] = useState(0);
+  const [confirmState, setConfirmState] = useState(null);
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [promoteOpen, setPromoteOpen] = useState(false);
+  const [promoteForm, setPromoteForm] = useState({ classId: '', section: '' });
+  const [promoting, setPromoting] = useState(false);
 
   const totalPages = Math.ceil(total / PAGE_LIMIT);
 
@@ -81,14 +87,54 @@ export default function StudentList() {
     }
   };
 
-  const handleDelete = async (id, name) => {
-    if (!confirm(`Delete ${name}? This cannot be undone.`)) return;
+  const handleDelete = (id, name) => {
+    setConfirmState({
+      title: `Delete ${name}?`,
+      message: 'This cannot be undone.',
+      onConfirm: async () => {
+        setConfirmState(null);
+        try {
+          await api.delete(`/students/${id}`);
+          toast.success('Student deleted');
+          fetchStudents(currentPage);
+        } catch (err) {
+          toast.error(err.response?.data?.message || 'Delete failed');
+        }
+      },
+    });
+  };
+
+  const toggleSelect = (id) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const toggleAll = () => {
+    if (selectedIds.size === students.length) setSelectedIds(new Set());
+    else setSelectedIds(new Set(students.map((s) => s._id)));
+  };
+
+  const handlePromote = async (e) => {
+    e.preventDefault();
+    setPromoting(true);
     try {
-      await api.delete(`/students/${id}`);
-      toast.success('Student deleted');
+      const { data } = await api.post('/students/promote', {
+        studentIds: [...selectedIds],
+        newClassId: promoteForm.classId,
+        ...(promoteForm.section ? { newSection: promoteForm.section } : {}),
+      });
+      toast.success(`${data.modified} student${data.modified !== 1 ? 's' : ''} promoted`);
+      setPromoteOpen(false);
+      setSelectedIds(new Set());
+      setPromoteForm({ classId: '', section: '' });
       fetchStudents(currentPage);
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Delete failed');
+      toast.error(err.response?.data?.message || 'Promote failed');
+    } finally {
+      setPromoting(false);
     }
   };
 
@@ -101,11 +147,71 @@ export default function StudentList() {
           onClose={() => setCredentials(null)}
         />
       )}
+      {confirmState && (
+        <ConfirmModal {...confirmState} onCancel={() => setConfirmState(null)} />
+      )}
+      {promoteOpen && (
+        <div className="fixed inset-0 bg-slate-900/50 z-50 overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4">
+          <form onSubmit={handlePromote} className="bg-white rounded-2xl w-full max-w-sm p-6 shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-display font-bold text-lg">Promote Students</h3>
+              <button type="button" onClick={() => setPromoteOpen(false)} className="p-1 rounded hover:bg-slate-100">
+                <X size={18} />
+              </button>
+            </div>
+            <p className="text-sm text-slate-500 mb-4">
+              Moving <span className="font-semibold text-slate-800">{selectedIds.size}</span> student{selectedIds.size !== 1 ? 's' : ''} to a new class.
+            </p>
+            <div className="space-y-4">
+              <div>
+                <label className="label">Target Class *</label>
+                <select
+                  required
+                  value={promoteForm.classId}
+                  onChange={(e) => setPromoteForm({ classId: e.target.value, section: '' })}
+                  className="input"
+                >
+                  <option value="">Select class...</option>
+                  {classes.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
+                </select>
+              </div>
+              {(classes.find((c) => c._id === promoteForm.classId)?.sections || []).length > 0 && (
+                <div>
+                  <label className="label">Section</label>
+                  <select
+                    value={promoteForm.section}
+                    onChange={(e) => setPromoteForm({ ...promoteForm, section: e.target.value })}
+                    className="input"
+                  >
+                    <option value="">No section change</option>
+                    {(classes.find((c) => c._id === promoteForm.classId)?.sections || []).map((s) => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+            <div className="flex justify-end gap-2 mt-6">
+              <button type="button" onClick={() => setPromoteOpen(false)} className="btn-secondary">Cancel</button>
+              <button type="submit" disabled={promoting} className="btn-primary disabled:opacity-50">
+                {promoting ? 'Promoting…' : `Promote ${selectedIds.size}`}
+              </button>
+            </div>
+          </form>
+          </div>
+        </div>
+      )}
       <PageHeader
         title="Students"
         subtitle={`${total} student${total !== 1 ? 's' : ''} in your institute`}
         action={
           <div className="flex gap-2">
+            {selectedIds.size > 0 && (
+              <button onClick={() => setPromoteOpen(true)} className="btn-secondary">
+                <ArrowUpCircle size={16} /> Promote {selectedIds.size}
+              </button>
+            )}
             <button className="btn-secondary">
               <Download size={16} /> Export
             </button>
@@ -167,6 +273,14 @@ export default function StudentList() {
               <table className="w-full">
                 <thead className="bg-slate-50 border-b border-slate-100">
                   <tr className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    <th className="px-5 py-3">
+                      <input
+                        type="checkbox"
+                        checked={students.length > 0 && selectedIds.size === students.length}
+                        onChange={toggleAll}
+                        className="rounded border-slate-300 accent-brand-600"
+                      />
+                    </th>
                     <th className="px-5 py-3">Student</th>
                     <th className="px-5 py-3">ID</th>
                     <th className="px-5 py-3">Class</th>
@@ -177,7 +291,15 @@ export default function StudentList() {
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {students.map((s) => (
-                    <tr key={s._id} className="hover:bg-slate-50/70 transition">
+                    <tr key={s._id} className={`hover:bg-slate-50/70 transition ${selectedIds.has(s._id) ? 'bg-blue-50/40' : ''}`}>
+                      <td className="px-5 py-3">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(s._id)}
+                          onChange={() => toggleSelect(s._id)}
+                          className="rounded border-slate-300 accent-brand-600"
+                        />
+                      </td>
                       <td className="px-5 py-3">
                         <div className="flex items-center gap-3">
                           <div className="w-9 h-9 rounded-lg bg-gradient-brand text-white flex items-center justify-center font-semibold text-sm">

@@ -4,12 +4,14 @@ import { Plus, ClipboardList, Calendar, X, Trash2 } from 'lucide-react';
 import api from '../../api/axios.js';
 import PageHeader from '../../components/ui/PageHeader.jsx';
 import { Loader, EmptyState, Badge } from '../../components/ui/Misc.jsx';
+import ConfirmModal from '../../components/ui/ConfirmModal.jsx';
 
 export default function ExamList() {
   const [exams, setExams] = useState([]);
   const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [confirmState, setConfirmState] = useState(null);
   const [form, setForm] = useState({
     name: '', class: '', startDate: '', endDate: '',
     subjects: 'Mathematics, Science, English, Nepali, Social Studies',
@@ -43,17 +45,26 @@ export default function ExamList() {
     } catch (err) { toast.error(err.response?.data?.message || 'Create failed'); }
   };
 
-  const remove = async (ex) => {
-    if (!confirm(`Delete ${ex.name}? This also deletes all related results.`)) return;
-    try {
-      await api.delete(`/exams/${ex._id}`);
-      toast.success('Exam deleted');
-      load();
-    } catch (err) { toast.error(err.response?.data?.message || 'Delete failed'); }
+  const remove = (ex) => {
+    setConfirmState({
+      title: `Delete "${ex.name}"?`,
+      message: 'All associated student results will also be permanently deleted.',
+      onConfirm: async () => {
+        setConfirmState(null);
+        try {
+          await api.delete(`/exams/${ex._id}`);
+          toast.success('Exam deleted');
+          load();
+        } catch (err) { toast.error(err.response?.data?.message || 'Delete failed'); }
+      },
+    });
   };
 
   return (
     <div>
+      {confirmState && (
+        <ConfirmModal {...confirmState} onCancel={() => setConfirmState(null)} />
+      )}
       <PageHeader
         title="Exams & Results"
         subtitle="Schedule exams and manage results"
@@ -107,7 +118,8 @@ export default function ExamList() {
       )}
 
       {modalOpen && (
-        <div className="fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-slate-900/50 z-50 overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4">
           <form onSubmit={create} className="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-display font-bold text-lg">Schedule Exam</h3>
@@ -145,6 +157,7 @@ export default function ExamList() {
               <button type="submit" className="btn-primary">Create</button>
             </div>
           </form>
+          </div>
         </div>
       )}
     </div>

@@ -4,6 +4,7 @@ import { Plus, BookOpen, Users as UsersIcon, Edit2, Trash2, X, UserCheck } from 
 import api from '../../api/axios.js';
 import PageHeader from '../../components/ui/PageHeader.jsx';
 import { Loader, EmptyState } from '../../components/ui/Misc.jsx';
+import ConfirmModal from '../../components/ui/ConfirmModal.jsx';
 
 export default function ClassList() {
   const [classes, setClasses] = useState([]);
@@ -11,6 +12,7 @@ export default function ClassList() {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null);
+  const [confirmState, setConfirmState] = useState(null);
   const [form, setForm] = useState({
     name: '', sections: 'A, B', defaultFee: 0, admissionFee: 0, transportFee: 0,
     classTeacher: '', description: '',
@@ -75,19 +77,28 @@ export default function ClassList() {
     }
   };
 
-  const remove = async (c) => {
-    if (!confirm(`Delete ${c.name}?`)) return;
-    try {
-      await api.delete(`/classes/${c._id}`);
-      toast.success('Class removed');
-      load();
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Delete failed');
-    }
+  const remove = (c) => {
+    setConfirmState({
+      title: `Delete "${c.name}"?`,
+      message: 'Students assigned to this class will lose their class reference.',
+      onConfirm: async () => {
+        setConfirmState(null);
+        try {
+          await api.delete(`/classes/${c._id}`);
+          toast.success('Class removed');
+          load();
+        } catch (err) {
+          toast.error(err.response?.data?.message || 'Delete failed');
+        }
+      },
+    });
   };
 
   return (
     <div>
+      {confirmState && (
+        <ConfirmModal {...confirmState} onCancel={() => setConfirmState(null)} />
+      )}
       <PageHeader
         title="Classes & Sections"
         subtitle="Manage academic levels, sections, fees, and class teachers"
@@ -148,8 +159,9 @@ export default function ClassList() {
       )}
 
       {modalOpen && (
-        <div className="fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center p-4">
-          <form onSubmit={save} className="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-slate-900/50 z-50 overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4">
+          <form onSubmit={save} className="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-display font-bold text-lg">{editing ? 'Edit Class' : 'New Class'}</h3>
               <button type="button" onClick={() => setModalOpen(false)} className="p-1 rounded hover:bg-slate-100">
@@ -198,6 +210,7 @@ export default function ClassList() {
               <button type="submit" className="btn-primary">Save</button>
             </div>
           </form>
+          </div>
         </div>
       )}
     </div>

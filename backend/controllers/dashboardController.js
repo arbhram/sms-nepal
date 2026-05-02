@@ -6,9 +6,7 @@ import Attendance from '../models/Attendance.js';
 import { Exam } from '../models/Exam.js';
 import Class from '../models/Class.js';
 
-// @desc   Dashboard widget data
-// @route  GET /api/dashboard
-export const getDashboardStats = asyncHandler(async (req, res) => {
+export const getDashboardStats = asyncHandler(async (_req, res) => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const tomorrow = new Date(today);
@@ -17,6 +15,15 @@ export const getDashboardStats = asyncHandler(async (req, res) => {
   const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  const sixMonthsAgo = new Date();
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
+  sixMonthsAgo.setDate(1);
+  sixMonthsAgo.setHours(0, 0, 0, 0);
+
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+  sevenDaysAgo.setHours(0, 0, 0, 0);
 
   const [
     totalStudents,
@@ -27,69 +34,68 @@ export const getDashboardStats = asyncHandler(async (req, res) => {
     pendingFeesAgg,
     monthRevenueAgg,
     upcomingExams,
+    revenueTrend,
+    attendanceTrend,
   ] = await Promise.all([
     Student.countDocuments({ status: 'active' }),
     Teacher.countDocuments({ status: 'active' }),
     Class.countDocuments(),
     Student.countDocuments({ admissionDate: { $gte: thirtyDaysAgo } }),
+
     Attendance.aggregate([
       { $match: { date: { $gte: today, $lt: tomorrow } } },
       { $group: { _id: '$status', count: { $sum: 1 } } },
     ]),
+
+    // Pending fees — uses correct field names from Fee model
     Fee.aggregate([
-      { $match: { status: { $in: ['Pending', 'Partial', 'Overdue'] } } },
-      { $group: { _id: null, total: { $sum: { $subtract: ['$amount', '$paidAmount'] } } } },
+      { $match: { status: { $in: ['Unpaid', 'Partial'] } } },
+      { $group: { _id: null, total: { $sum: '$remainingBalance' } } },
     ]),
+
+    // This month's collected revenue — unwind payments subdocument
     Fee.aggregate([
-      { $match: { paidDate: { $gte: monthStart } } },
-      { $group: { _id: null, total: { $sum: '$paidAmount' } } },
+      { $unwind: '$payments' },
+      { $match: { 'payments.paidDate': { $gte: monthStart } } },
+      { $group: { _id: null, total: { $sum: '$payments.amount' } } },
     ]),
-    Exam.find({ startDate: { $gte: today } }).sort({ startDate: 1 }).limit(5).populate('class', 'name'),
-  ]);
 
-  // Revenue per month (last 6 months)
-  const sixMonthsAgo = new Date();
-  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
-  sixMonthsAgo.setDate(1);
-  sixMonthsAgo.setHours(0, 0, 0, 0);
+    Exam.find({ startDate: { $gte: today } })
+      .sort({ startDate: 1 })
+      .limit(5)
+      .populate('class', 'name'),
 
-  const revenueTrend = await Fee.aggregate([
-    { $match: { paidDate: { $gte: sixMonthsAgo } } },
-    {
-      $group: {
-        _id: { y: { $year: '$paidDate' }, m: { $month: '$paidDate' } },
-        revenue: { $sum: '$paidAmount' },
-      },
-    },
-    { $sort: { '_id.y': 1, '_id.m': 1 } },
-  ]);
-
-  // Attendance trend (last 7 days)
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
-  sevenDaysAgo.setHours(0, 0, 0, 0);
-
-  const attendanceTrend = await Attendance.aggregate([
-    { $match: { date: { $gte: sevenDaysAgo } } },
-    {
-      $group: {
-        _id: {
-          date: { $dateToString: { format: '%Y-%m-%d', date: '$date' } },
-          status: '$status',
+    // Revenue trend — last 6 months via payments subdocument
+    Fee.aggregate([
+      { $unwind: '$payments' },
+      { $match: { 'payments.paidDate': { $gte: sixMonthsAgo } } },
+      {
+        $group: {
+          _id: { y: { $year: '$payments.paidDate' }, m: { $month: '$payments.paidDate' } },
+          revenue: { $sum: '$payments.amount' },
         },
-        count: { $sum: 1 },
       },
-    },
-    { $sort: { '_id.date': 1 } },
+      { $sort: { '_id.y': 1, '_id.m': 1 } },
+    ]),
+
+    // Attendance trend last 7 days
+    Attendance.aggregate([
+      { $match: { date: { $gte: sevenDaysAgo } } },
+      {
+        $group: {
+          _id: {
+            date: { $dateToString: { format: '%Y-%m-%d', date: '$date' } },
+            status: '$status',
+          },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { '_id.date': 1 } },
+    ]),
   ]);
 
   res.json({
-    totals: {
-      students: totalStudents,
-      teachers: totalTeachers,
-      classes: totalClasses,
-      newAdmissions,
-    },
+    totals: { students: totalStudents, teachers: totalTeachers, classes: totalClasses, newAdmissions },
     todayAttendance,
     pendingFees: pendingFeesAgg[0]?.total || 0,
     monthRevenue: monthRevenueAgg[0]?.total || 0,

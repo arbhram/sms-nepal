@@ -7,6 +7,7 @@ import {
 import api from '../../api/axios.js';
 import PageHeader from '../../components/ui/PageHeader.jsx';
 import { Loader, EmptyState, Badge } from '../../components/ui/Misc.jsx';
+import ConfirmModal from '../../components/ui/ConfirmModal.jsx';
 
 // ─── constants ────────────────────────────────────────────────────────────────
 const FEE_TYPES = ['Admission', 'Monthly', 'Exam', 'Transport', 'Hostel', 'Library', 'Identity Card', 'Custom'];
@@ -190,6 +191,7 @@ export default function FeeList() {
   // Payment form state
   const [payment, setPayment] = useState({ amount: '', paymentMethod: 'Cash', paidDate: '', remarks: '' });
   const [payLoading, setPayLoading] = useState(false);
+  const [confirmState, setConfirmState] = useState(null);
 
   const selectedFilterClass = classes.find((c) => c._id === classFilter);
 
@@ -308,17 +310,24 @@ export default function FeeList() {
   };
 
   // ── Delete payment ──────────────────────────────────────────────────────────
-  const deletePayment = async (feeId, paymentId) => {
-    if (!confirm('Remove this payment? Totals will be recalculated.')) return;
-    try {
-      const { data } = await api.delete(`/fees/${feeId}/payment/${paymentId}`);
-      toast.success('Payment removed');
-      setPayOpen(data.fee);
-      setPayment({ amount: data.fee.remainingBalance > 0 ? data.fee.remainingBalance : '', paymentMethod: 'Cash', paidDate: '', remarks: '' });
-      setFees((prev) => prev.map((f) => f._id === feeId ? data.fee : f));
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Delete failed');
-    }
+  const deletePayment = (feeId, paymentId) => {
+    setConfirmState({
+      title: 'Remove this payment?',
+      message: 'Fee totals and status will be recalculated immediately.',
+      confirmLabel: 'Remove',
+      onConfirm: async () => {
+        setConfirmState(null);
+        try {
+          const { data } = await api.delete(`/fees/${feeId}/payment/${paymentId}`);
+          toast.success('Payment removed');
+          setPayOpen(data.fee);
+          setPayment({ amount: data.fee.remainingBalance > 0 ? data.fee.remainingBalance : '', paymentMethod: 'Cash', paidDate: '', remarks: '' });
+          setFees((prev) => prev.map((f) => f._id === feeId ? data.fee : f));
+        } catch (err) {
+          toast.error(err.response?.data?.message || 'Delete failed');
+        }
+      },
+    });
   };
 
   const selectedBulkClass = classes.find((c) => c._id === bulkFee.classId);
@@ -326,6 +335,9 @@ export default function FeeList() {
 
   return (
     <div>
+      {confirmState && (
+        <ConfirmModal {...confirmState} onCancel={() => setConfirmState(null)} />
+      )}
       <PageHeader
         title="Fee Management"
         subtitle="Assign fees, record payments, and track balances"

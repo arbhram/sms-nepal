@@ -2,7 +2,11 @@ import asyncHandler from 'express-async-handler';
 import User from '../models/User.js';
 import { generateToken } from '../utils/helpers.js';
 
-// @desc   Register a staff/admin user (super admin only for some roles)
+// Roles that may be assigned via the /register endpoint.
+// 'superadmin' is intentionally excluded — create only via seed script.
+const REGISTERABLE_ROLES = ['admin', 'teacher', 'student', 'parent'];
+
+// @desc   Register a staff/admin user (admin or superadmin only)
 // @route  POST /api/auth/register
 export const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password, phone, role } = req.body;
@@ -13,12 +17,14 @@ export const registerUser = asyncHandler(async (req, res) => {
     throw new Error('Email already registered');
   }
 
+  const assignedRole = REGISTERABLE_ROLES.includes(role) ? role : 'admin';
+
   const user = await User.create({
     name,
     email,
     password,
     phone,
-    role: role || 'admin',
+    role: assignedRole,
   });
 
   res.status(201).json({
@@ -61,7 +67,7 @@ export const getMe = asyncHandler(async (req, res) => {
   res.json(req.user);
 });
 
-// @desc   Update profile
+// @desc   Update profile (name, phone, avatar only — use /change-password for password)
 // @route  PUT /api/auth/me
 export const updateMe = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
@@ -72,7 +78,8 @@ export const updateMe = asyncHandler(async (req, res) => {
   user.name = req.body.name || user.name;
   user.phone = req.body.phone || user.phone;
   user.avatar = req.body.avatar || user.avatar;
-  if (req.body.password) user.password = req.body.password;
+  // Password changes are intentionally not allowed here.
+  // Use PUT /api/auth/change-password which requires the current password.
   const updated = await user.save();
   res.json({
     _id: updated._id,
@@ -100,7 +107,7 @@ export const changePassword = asyncHandler(async (req, res) => {
 
 // @desc   List users (admin)
 // @route  GET /api/auth/users
-export const getUsers = asyncHandler(async (req, res) => {
+export const getUsers = asyncHandler(async (_req, res) => {
   const users = await User.find().select('-password').sort({ createdAt: -1 });
   res.json(users);
 });

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Megaphone, Trash2, Plus, X } from 'lucide-react';
 import api from '../../api/axios.js';
 import toast from 'react-hot-toast';
+import ConfirmModal from '../../components/ui/ConfirmModal.jsx';
 
 const AUDIENCE_LABELS = {
   teacher: { label: 'Teachers Only', color: 'bg-blue-100 text-blue-700' },
@@ -23,6 +24,7 @@ export default function NoticeBoard() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ title: '', content: '', audience: 'both' });
   const [posting, setPosting] = useState(false);
+  const [confirmState, setConfirmState] = useState(null);
 
   const fetchNotices = async () => {
     try {
@@ -54,19 +56,29 @@ export default function NoticeBoard() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm('Delete this notice?')) return;
-    try {
-      await api.delete(`/notices/${id}`);
-      setNotices(notices.filter((n) => n._id !== id));
-      toast.success('Notice deleted');
-    } catch (_) {
-      toast.error('Failed to delete notice');
-    }
+  const handleDelete = (id) => {
+    setConfirmState({
+      title: 'Delete this notice?',
+      message: 'This will also remove the associated bell notification.',
+      onConfirm: async () => {
+        setConfirmState(null);
+        try {
+          await api.delete(`/notices/${id}`);
+          setNotices(notices.filter((n) => n._id !== id));
+          toast.success('Notice deleted');
+        } catch (_) {
+          toast.error('Failed to delete notice');
+        }
+      },
+    });
   };
 
   return (
     <div className="space-y-6">
+      {confirmState && (
+        <ConfirmModal {...confirmState} onCancel={() => setConfirmState(null)} />
+      )}
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-display font-bold text-slate-900">Notice Board</h1>

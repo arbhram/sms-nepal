@@ -14,7 +14,7 @@ const userSchema = new mongoose.Schema(
     },
     avatar: { type: String, default: '' },
     isActive: { type: Boolean, default: true },
-    linkedStudent: { type: mongoose.Schema.Types.ObjectId, ref: 'Student' },
+    linkedStudents: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Student' }],
     linkedTeacher: { type: mongoose.Schema.Types.ObjectId, ref: 'Teacher' },
   },
   { timestamps: true }

@@ -10,7 +10,8 @@ import PageHeader from '../../components/ui/PageHeader.jsx';
 function PasswordModal({ email, password, onClose }) {
   const copy = (text) => { navigator.clipboard.writeText(text); toast.success('Copied!'); };
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/40 backdrop-blur-sm">
+      <div className="flex min-h-full items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center"><KeyRound size={20} className="text-blue-600" /></div>
@@ -27,6 +28,7 @@ function PasswordModal({ email, password, onClose }) {
           </div>
         ))}
         <button onClick={onClose} className="btn-primary w-full mt-4">Done</button>
+      </div>
       </div>
     </div>
   );

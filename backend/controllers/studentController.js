@@ -49,7 +49,7 @@ export const createStudent = asyncHandler(async (req, res) => {
   const loginEmail = student.email || `${student.studentId.toLowerCase()}@student.sms.np`;
   const existingUser = await User.findOne({ email: loginEmail });
   if (!existingUser) {
-    await User.create({ name: student.fullName, email: loginEmail, password, role: 'student', linkedStudent: student._id });
+    await User.create({ name: student.fullName, email: loginEmail, password, role: 'student', linkedStudents: [student._id] });
   }
 
   notify({
@@ -130,7 +130,7 @@ export const resetStudentPassword = asyncHandler(async (req, res) => {
 
   const password = gen6digit();
   const loginEmail = student.email || `${student.studentId.toLowerCase()}@student.sms.np`;
-  let user = await User.findOne({ linkedStudent: student._id });
+  let user = await User.findOne({ linkedStudents: student._id });
   if (!user) user = await User.findOne({ email: loginEmail });
   if (!user) { res.status(404); throw new Error('No login account found for this student'); }
 

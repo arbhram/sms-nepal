@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import toast from 'react-hot-toast';
-import { Lock, Mail, Eye, EyeOff, GraduationCap } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
 
 export default function Login() {
@@ -15,7 +15,7 @@ export default function Login() {
     initialValues: { email: 'admin@sms.np', password: 'admin123' },
     validationSchema: Yup.object({
       email: Yup.string().email('Invalid email').required('Required'),
-      password: Yup.string().min(6, 'Min 6 characters').required('Required'),
+      password: Yup.string().min(6).required('Required'),
     }),
     onSubmit: async (values, { setSubmitting }) => {
       try {
@@ -23,6 +23,7 @@ export default function Login() {
         toast.success('Welcome back!');
         if (data.role === 'student') navigate('/student/dashboard');
         else if (data.role === 'teacher') navigate('/teacher/dashboard');
+        else if (data.role === 'parent') navigate('/parent/dashboard');
         else navigate('/dashboard');
       } catch (err) {
         toast.error(err.response?.data?.message || 'Login failed');
@@ -33,109 +34,239 @@ export default function Login() {
   });
 
   return (
-    <div className="min-h-screen flex">
-      {/* Left panel */}
-      <div className="hidden lg:flex w-1/2 bg-gradient-brand relative overflow-hidden items-center justify-center p-12">
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-10 right-10 w-72 h-72 rounded-full bg-white/30 blur-3xl" />
-          <div className="absolute bottom-10 left-10 w-96 h-96 rounded-full bg-accent-500/40 blur-3xl" />
-        </div>
-        <div className="relative z-10 text-white max-w-md">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur text-xs font-semibold uppercase tracking-wider mb-6">
-            <GraduationCap size={14} /> SMS Nepal
-          </div>
-          <h1 className="text-5xl font-display font-bold leading-[1.05] tracking-tight mb-4">
-            Run your school<br />with clarity.
-          </h1>
-          <p className="text-white/80 text-lg leading-relaxed">
-            A modern student management system built for Nepali schools, colleges, and tuition
-            centers. Students, fees, attendance, exams — all in one place.
+    <div
+      className="min-h-screen flex items-center justify-center relative overflow-hidden p-4"
+      style={{ background: 'linear-gradient(135deg, #ddeeff 0%, #eef5ff 50%, #e8f0fe 100%)' }}
+    >
+      {/* Soft background blobs */}
+      <div
+        className="absolute top-0 left-0 w-[560px] h-[560px] rounded-full pointer-events-none"
+        style={{ background: 'radial-gradient(circle, rgba(12,127,255,0.1) 0%, transparent 70%)', transform: 'translate(-35%, -35%)' }}
+      />
+      <div
+        className="absolute bottom-0 right-0 w-[480px] h-[480px] rounded-full pointer-events-none"
+        style={{ background: 'radial-gradient(circle, rgba(6,68,143,0.08) 0%, transparent 70%)', transform: 'translate(30%, 30%)' }}
+      />
+
+      {/* Card */}
+      <div
+        className="relative w-full max-w-[880px] rounded-[28px] flex overflow-hidden"
+        style={{ minHeight: 520, boxShadow: '0 24px 80px rgba(12,63,143,0.14), 0 4px 16px rgba(0,0,0,0.06)' }}
+      >
+
+        {/* ── LEFT — Brand blue illustration panel ── */}
+        <div
+          className="hidden md:flex w-[44%] flex-col items-center justify-center relative overflow-hidden p-8"
+          style={{ background: 'linear-gradient(160deg, #0c7fff 0%, #0063db 55%, #004fb0 100%)' }}
+        >
+          {/* Decorative rings */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full border border-white/10 pointer-events-none" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full border border-white/[0.06] pointer-events-none" />
+
+          {/* Floating dots */}
+          <div className="absolute top-8 right-12 w-2.5 h-2.5 rounded-full bg-white/20" />
+          <div className="absolute top-20 left-8 w-1.5 h-1.5 rounded-full bg-white/15" />
+          <div className="absolute bottom-16 right-8 w-2 h-2 rounded-full bg-white/20" />
+          <div className="absolute bottom-28 left-14 w-1.5 h-1.5 rounded-full bg-white/15" />
+          <div className="absolute top-1/3 right-6 w-1 h-1 rounded-full bg-white/25" />
+
+          {/* Illustration */}
+          <svg width="280" height="280" viewBox="0 0 280 280" fill="none" className="relative z-10">
+
+            {/* Ground glow */}
+            <ellipse cx="140" cy="232" rx="90" ry="16" fill="white" fillOpacity="0.1" />
+
+            {/* ── Books stack ── */}
+            {/* Book 3 — warm */}
+            <rect x="60" y="194" width="96" height="22" rx="4" fill="white" fillOpacity="0.25" />
+            <rect x="60" y="194" width="13" height="22" rx="2" fill="white" fillOpacity="0.35" />
+            <rect x="62" y="196" width="9" height="18" rx="1.5" fill="white" fillOpacity="0.5" />
+            <line x1="82" y1="197" x2="148" y2="197" stroke="white" strokeWidth="1" strokeOpacity="0.15" />
+            <line x1="82" y1="201" x2="142" y2="201" stroke="white" strokeWidth="1" strokeOpacity="0.1" />
+            {/* Book 2 */}
+            <rect x="64" y="174" width="88" height="22" rx="4" fill="white" fillOpacity="0.18" />
+            <rect x="64" y="174" width="13" height="22" rx="2" fill="white" fillOpacity="0.28" />
+            <rect x="66" y="176" width="9" height="18" rx="1.5" fill="white" fillOpacity="0.4" />
+            {/* Book 1 */}
+            <rect x="68" y="156" width="80" height="20" rx="4" fill="white" fillOpacity="0.30" />
+            <rect x="68" y="156" width="13" height="20" rx="2" fill="white" fillOpacity="0.42" />
+            <rect x="70" y="158" width="9" height="16" rx="1.5" fill="white" fillOpacity="0.6" />
+            <line x1="90" y1="159" x2="140" y2="159" stroke="white" strokeWidth="1" strokeOpacity="0.2" />
+            <line x1="90" y1="163" x2="134" y2="163" stroke="white" strokeWidth="1" strokeOpacity="0.15" />
+
+            {/* ── Graduation cap ── */}
+            <ellipse cx="148" cy="106" rx="55" ry="10" fill="white" fillOpacity="0.1" />
+            {/* Board top face */}
+            <path d="M92 88 L148 68 L204 88 L148 108 Z" fill="white" fillOpacity="0.9" />
+            {/* Board underside */}
+            <path d="M92 88 L148 108 L148 102 L92 82 Z" fill="white" fillOpacity="0.55" />
+            {/* Highlight edge */}
+            <path d="M100 85 L148 68 L196 85 L148 102 Z" fill="none" stroke="white" strokeWidth="0.8" strokeOpacity="0.4" />
+            {/* Center button */}
+            <circle cx="148" cy="88" r="5" fill="#004fb0" />
+            <circle cx="148" cy="88" r="3" fill="#0063db" />
+            {/* Tassel */}
+            <line x1="148" y1="88" x2="180" y2="94" stroke="#fbbf24" strokeWidth="2" strokeLinecap="round" />
+            <line x1="180" y1="94" x2="180" y2="116" stroke="#fbbf24" strokeWidth="2" strokeLinecap="round" />
+            <rect x="175" y="116" width="10" height="3" rx="1.5" fill="#f59e0b" />
+            <line x1="175" y1="119" x2="173" y2="130" stroke="#f59e0b" strokeWidth="1.5" strokeLinecap="round" />
+            <line x1="177" y1="119" x2="177" y2="131" stroke="#fbbf24" strokeWidth="1.5" strokeLinecap="round" />
+            <line x1="179" y1="119" x2="181" y2="130" stroke="#f59e0b" strokeWidth="1.5" strokeLinecap="round" />
+            <line x1="181" y1="119" x2="183" y2="129" stroke="#fbbf24" strokeWidth="1.5" strokeLinecap="round" />
+            {/* Cap cylinder */}
+            <path d="M122 102 L122 124 Q148 134 174 124 L174 102 Q148 112 122 102 Z" fill="white" fillOpacity="0.65" />
+            <path d="M122 102 Q148 112 174 102 Q148 114 122 102 Z" fill="white" fillOpacity="0.3" />
+
+            {/* ── Pencil ── */}
+            <g transform="rotate(-30, 212, 152)">
+              <rect x="204" y="110" width="16" height="72" rx="2" fill="#fbbf24" />
+              <rect x="204" y="110" width="16" height="9" rx="2" fill="#e5e7eb" />
+              <rect x="204" y="117" width="16" height="4" fill="#9ca3af" />
+              <path d="M204 182 L212 198 L220 182 Z" fill="#fde68a" />
+              <path d="M207 182 L212 198 L217 182 Z" fill="#451a03" />
+              <rect x="206" y="124" width="3" height="52" rx="1.5" fill="white" fillOpacity="0.3" />
+            </g>
+
+            {/* ── Diploma scroll ── */}
+            <g transform="translate(178, 36) rotate(10)">
+              <rect x="0" y="6" width="50" height="36" rx="2" fill="white" fillOpacity="0.92" />
+              <ellipse cx="25" cy="6" rx="25" ry="5" fill="white" fillOpacity="0.75" />
+              <ellipse cx="25" cy="42" rx="25" ry="5" fill="white" fillOpacity="0.75" />
+              <ellipse cx="25" cy="6" rx="21" ry="3.5" fill="white" fillOpacity="0.92" />
+              <rect x="21" y="0" width="8" height="48" rx="2" fill="#dc2626" fillOpacity="0.7" />
+              <line x1="6" y1="18" x2="44" y2="18" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" />
+              <line x1="6" y1="24" x2="44" y2="24" stroke="#94a3b8" strokeWidth="1" strokeLinecap="round" />
+              <line x1="6" y1="29" x2="44" y2="29" stroke="#94a3b8" strokeWidth="1" strokeLinecap="round" />
+              <circle cx="25" cy="24" r="6" fill="#fbbf24" />
+              <text x="25" y="27.5" textAnchor="middle" fontSize="7" fill="white" fontWeight="bold">★</text>
+            </g>
+
+            {/* ── Sparkles ── */}
+            <g transform="translate(44, 54)">
+              <line x1="0" y1="-7" x2="0" y2="7" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeOpacity="0.5" />
+              <line x1="-7" y1="0" x2="7" y2="0" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeOpacity="0.5" />
+              <line x1="-4" y1="-4" x2="4" y2="4" stroke="white" strokeWidth="1" strokeLinecap="round" strokeOpacity="0.35" />
+              <line x1="4" y1="-4" x2="-4" y2="4" stroke="white" strokeWidth="1" strokeLinecap="round" strokeOpacity="0.35" />
+            </g>
+            <g transform="translate(170, 168)">
+              <line x1="0" y1="-5" x2="0" y2="5" stroke="#fbbf24" strokeWidth="1.5" strokeLinecap="round" />
+              <line x1="-5" y1="0" x2="5" y2="0" stroke="#fbbf24" strokeWidth="1.5" strokeLinecap="round" />
+            </g>
+            <circle cx="52" cy="142" r="2.5" fill="white" fillOpacity="0.25" />
+            <circle cx="60" cy="134" r="1.5" fill="white" fillOpacity="0.2" />
+            <circle cx="236" cy="62" r="2" fill="white" fillOpacity="0.25" />
+          </svg>
+
+          {/* Caption */}
+          <p className="relative z-10 text-white/50 text-[11px] tracking-widest uppercase mt-1">
+            School Management System
           </p>
-          <div className="mt-10 grid grid-cols-3 gap-4">
-            {[
-              { k: '10k+', v: 'Students' },
-              { k: '500+', v: 'Institutes' },
-              { k: '99.9%', v: 'Uptime' },
-            ].map((s) => (
-              <div key={s.v} className="bg-white/10 backdrop-blur rounded-xl p-3 border border-white/10">
-                <div className="text-2xl font-display font-bold">{s.k}</div>
-                <div className="text-xs text-white/70 uppercase tracking-wider">{s.v}</div>
-              </div>
-            ))}
+
+          {/* Brand mark top-left */}
+          <div className="absolute top-5 left-5 flex items-center gap-2 z-10">
+            <div
+              className="w-8 h-8 rounded-lg flex items-center justify-center"
+              style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)' }}
+            >
+              <span className="text-white text-[11px] font-bold tracking-tight">SN</span>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Right panel - form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
-        <div className="w-full max-w-md">
-          <div className="mb-8">
-            <div className="inline-flex items-center gap-2 mb-6 lg:hidden">
-              <div className="w-10 h-10 rounded-xl bg-gradient-brand flex items-center justify-center text-white font-bold">
-                SN
-              </div>
-              <span className="font-display font-bold text-lg">SMS Nepal</span>
-            </div>
-            <h2 className="text-3xl font-display font-bold text-slate-900">Welcome back</h2>
-            <p className="text-slate-500 mt-2">Sign in to your admin account to continue.</p>
+        {/* ── RIGHT — White form panel ── */}
+        <div className="flex-1 flex flex-col justify-center px-10 py-14 relative bg-white">
+
+          {/* Top-right logo badge */}
+          <div
+            className="absolute top-0 right-0 w-16 h-16 flex items-center justify-center rounded-bl-2xl"
+            style={{ background: '#eef5ff', borderLeft: '1px solid #dbeafe', borderBottom: '1px solid #dbeafe' }}
+          >
+            <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+              <circle cx="13" cy="13" r="11" stroke="#0c7fff" strokeWidth="1.4" strokeOpacity="0.4" />
+              <path d="M8 7 L8 19 M18 7 L18 19 M8 13 Q13 9 18 13 Q13 17 8 13Z"
+                stroke="#0c7fff" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" fill="none" strokeOpacity="0.8" />
+            </svg>
           </div>
 
-          <form onSubmit={formik.handleSubmit} className="space-y-5">
-            <div>
-              <label className="label">Email address</label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+          <div className="max-w-[300px] w-full mx-auto">
+
+            <h1 className="text-[30px] font-display font-bold text-slate-900 mb-1.5 leading-tight">
+              Welcome!
+            </h1>
+            <p className="text-sm text-slate-400 mb-9">Login to your account</p>
+
+            <form onSubmit={formik.handleSubmit} className="space-y-4">
+
+              {/* Email */}
+              <div className="flex items-center gap-3 rounded-full px-5 py-3.5 bg-slate-50 border border-slate-200 transition-all focus-within:border-brand-400 focus-within:ring-2 focus-within:ring-brand-100">
+                <Mail size={15} className="text-slate-400 flex-shrink-0" />
                 <input
                   name="email"
                   type="email"
                   onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   value={formik.values.email}
-                  className="input pl-10"
-                  placeholder="you@school.edu.np"
+                  placeholder="Email"
+                  className="flex-1 bg-transparent text-sm text-slate-800 placeholder-slate-400 outline-none"
                 />
               </div>
-              {formik.errors.email && (
-                <p className="text-xs text-rose-500 mt-1">{formik.errors.email}</p>
+              {formik.errors.email && formik.touched.email && (
+                <p className="text-[11px] text-rose-500 -mt-2 pl-5">{formik.errors.email}</p>
               )}
-            </div>
 
-            <div>
-              <label className="label">Password</label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+              {/* Password */}
+              <div className="flex items-center gap-3 rounded-full px-5 py-3.5 bg-slate-50 border border-slate-200 transition-all focus-within:border-brand-400 focus-within:ring-2 focus-within:ring-brand-100">
+                <Lock size={15} className="text-slate-400 flex-shrink-0" />
                 <input
                   name="password"
                   type={showPass ? 'text' : 'password'}
                   onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   value={formik.values.password}
-                  className="input pl-10 pr-10"
-                  placeholder="••••••••"
+                  placeholder="Password"
+                  className="flex-1 bg-transparent text-sm text-slate-800 placeholder-slate-400 outline-none"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPass((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  className="flex-shrink-0 text-slate-400 hover:text-slate-600 transition"
                 >
-                  {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
+                  {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
               </div>
-              {formik.errors.password && (
-                <p className="text-xs text-rose-500 mt-1">{formik.errors.password}</p>
+              {formik.errors.password && formik.touched.password && (
+                <p className="text-[11px] text-rose-500 -mt-2 pl-5">{formik.errors.password}</p>
               )}
+
+              {/* Login button */}
+              <button
+                type="submit"
+                disabled={formik.isSubmitting}
+                className="w-full rounded-full py-3.5 text-white text-sm font-semibold transition-all active:scale-[0.98] disabled:opacity-60 mt-2"
+                style={{
+                  background: 'linear-gradient(135deg, #0c7fff 0%, #0063db 100%)',
+                  boxShadow: '0 4px 20px rgba(12,127,255,0.35)',
+                }}
+              >
+                {formik.isSubmitting ? 'Signing in…' : 'Login'}
+              </button>
+            </form>
+
+            {/* Demo credentials */}
+            <div className="mt-8 pt-6 border-t border-slate-100">
+              <p className="text-[10px] uppercase tracking-widest text-slate-400 text-center mb-2.5">
+                Demo Credentials
+              </p>
+              <button
+                type="button"
+                onClick={() => formik.setValues({ email: 'admin@sms.np', password: 'admin123' })}
+                className="w-full text-[11px] font-mono text-brand-600 hover:text-brand-700 transition py-2 rounded-full bg-brand-50 hover:bg-brand-100 border border-brand-100"
+              >
+                admin@sms.np · admin123
+              </button>
             </div>
 
-            <button
-              type="submit"
-              disabled={formik.isSubmitting}
-              className="btn-primary w-full py-3"
-            >
-              {formik.isSubmitting ? 'Signing in...' : 'Sign in'}
-            </button>
-
-            <div className="text-center text-xs text-slate-500 pt-4 border-t">
-              Demo credentials: <span className="font-semibold text-slate-700">admin@sms.np / admin123</span>
-            </div>
-          </form>
+          </div>
         </div>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import Fee from '../models/Fee.js';
 import Student from '../models/Student.js';
+import Transaction from '../models/Transaction.js';
 import { generateId } from '../utils/helpers.js';
 import { notifyStudent, notify } from '../utils/notify.js';
 
@@ -123,6 +124,18 @@ export const addPayment = asyncHandler(async (req, res) => {
 
   await fee.save(); // pre-save atomically recalculates totalPaid, remainingBalance, status
 
+  // Auto-record as Finance income
+  Transaction.create({
+    type: 'income',
+    amount: payAmount,
+    category: 'Fee Collection',
+    description: `${fee.category} fee — ${fee.student?.fullName || ''} (${fee.student?.studentId || ''})`,
+    date: paidDate ? new Date(paidDate) : new Date(),
+    paymentMethod,
+    reference: payReceiptNumber,
+    createdBy: req.user._id,
+  }).catch(() => {}); // non-blocking; don't fail the payment if this errors
+
   if (fee.student?._id) {
     if (fee.status === 'Paid') {
       notifyStudent({
@@ -172,9 +185,15 @@ export const deletePayment = asyncHandler(async (req, res) => {
   const idx = fee.payments.findIndex((p) => p._id.toString() === req.params.paymentId);
   if (idx === -1) { res.status(404); throw new Error('Payment entry not found'); }
 
+  const removedReceipt = fee.payments[idx].receiptNumber;
   fee.payments.splice(idx, 1);
   await fee.save();
   await fee.populate('student', 'fullName studentId class section');
+
+  // Remove the auto-created Finance income transaction for this payment
+  if (removedReceipt) {
+    Transaction.deleteOne({ reference: removedReceipt, category: 'Fee Collection' }).catch(() => {});
+  }
 
   res.json({ message: 'Payment removed and totals recalculated', fee });
 });

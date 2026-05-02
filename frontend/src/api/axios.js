@@ -1,4 +1,5 @@
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
@@ -14,9 +15,11 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (res) => res,
   (err) => {
-    if (err.response?.status === 401) {
+    const isLoginRequest = err.config?.url?.includes('/auth/login');
+    if (err.response?.status === 401 && !isLoginRequest) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      toast.error('Session expired, please log in again.');
       if (window.location.pathname !== '/login') window.location.href = '/login';
     }
     return Promise.reject(err);

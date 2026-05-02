@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell, Legend } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell } from 'recharts';
 import { Users, Wallet, CalendarCheck, ClipboardList } from 'lucide-react';
 import api from '../../api/axios.js';
 import PageHeader from '../../components/ui/PageHeader.jsx';
@@ -20,7 +20,7 @@ export default function Reports() {
   if (!dash || !feeSummary) return <Loader />;
 
   const categoryData = (feeSummary.byCategory || []).map((c) => ({
-    name: c._id, value: c.total, count: c.count,
+    name: c._id, value: c.totalPaid, count: c.count,
   }));
 
   return (
