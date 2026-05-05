@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Megaphone } from 'lucide-react';
 import api from '../../api/axios.js';
+import { formatBSRelative } from '../../utils/nepaliDate.js';
 
 const AUDIENCE_LABELS = {
   student: { label: 'Students', color: 'bg-green-100 text-green-700' },
@@ -8,13 +9,7 @@ const AUDIENCE_LABELS = {
   teacher: { label: 'Teachers', color: 'bg-blue-100 text-blue-700' },
 };
 
-function timeAgo(date) {
-  const diff = Math.floor((Date.now() - new Date(date)) / 1000);
-  if (diff < 60) return 'just now';
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-  return new Date(date).toLocaleDateString();
-}
+const timeAgo = formatBSRelative;
 
 export default function ParentNotices() {
   const [notices, setNotices] = useState([]);

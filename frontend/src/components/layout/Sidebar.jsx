@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard, Users, GraduationCap, BookOpen, Wallet,
   CalendarCheck, ClipboardList, BarChart3, Megaphone, Settings, X, UserCheck, PiggyBank,
+  LayoutList, UserCog,
 } from 'lucide-react';
 
 const SECTIONS = [
@@ -23,7 +24,9 @@ const SECTIONS = [
   {
     label: 'Management',
     items: [
-      { to: '/fees', label: 'Fees', icon: Wallet },
+      { to: '/fees', label: 'Fee Ledger', icon: Wallet },
+      { to: '/fees/structures', label: 'Fee Structures', icon: LayoutList },
+      { to: '/fees/assignments', label: 'Fee Assignments', icon: UserCog },
       { to: '/finance', label: 'Finance', icon: PiggyBank },
       { to: '/attendance', label: 'Attendance', icon: CalendarCheck },
       { to: '/exams', label: 'Exams', icon: ClipboardList },

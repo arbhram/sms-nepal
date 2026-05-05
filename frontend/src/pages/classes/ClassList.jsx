@@ -160,7 +160,7 @@ export default function ClassList() {
 
       {modalOpen && (
         <div className="fixed inset-0 bg-slate-900/50 z-50 overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center p-4">
+          <div className="flex min-h-full items-start justify-center p-4 pt-8">
           <form onSubmit={save} className="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-display font-bold text-lg">{editing ? 'Edit Class' : 'New Class'}</h3>

@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import api from '../../api/axios.js';
 import PageHeader from '../../components/ui/PageHeader.jsx';
 import { Loader, Badge } from '../../components/ui/Misc.jsx';
+import { formatBS } from '../../utils/nepaliDate.js';
 
 const METHODS = ['Cash', 'Bank Transfer', 'eSewa', 'Khalti', 'FonePay'];
 const fmt = (n) => `NPR ${Number(n || 0).toLocaleString()}`;
@@ -93,7 +94,7 @@ export default function StudentDetail() {
               <div>
                 <h2 className="text-2xl font-display font-bold text-slate-900">{student.fullName}</h2>
                 <div className="text-sm text-slate-500 mt-1">
-                  {student.gender} · Born {new Date(student.dateOfBirth).toLocaleDateString()}
+                  {student.gender} · Born {formatBS(student.dateOfBirth)}
                 </div>
               </div>
               <Badge color={student.status === 'active' ? 'green' : 'red'}>{student.status}</Badge>
@@ -129,7 +130,7 @@ export default function StudentDetail() {
 
       {payOpen && (
         <div className="fixed inset-0 bg-slate-900/50 z-50 overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center p-4">
+          <div className="flex min-h-full items-start justify-center p-4 pt-8">
             <div className="bg-white rounded-2xl shadow-xl w-full max-w-xl flex flex-col">
               <div className="flex items-center justify-between px-7 py-5 border-b">
                 <h3 className="font-display font-bold text-xl">Record Payment</h3>
@@ -221,7 +222,7 @@ function Profile({ s }) {
     ['Ward Number', s.wardNumber || '—'],
     ['Province', s.province || '—'],
     ['Roll Number', s.rollNumber || '—'],
-    ['Admission Date', new Date(s.admissionDate).toLocaleDateString()],
+    ['Admission Date', formatBS(s.admissionDate)],
     ['Previous School', s.previousSchool || '—'],
   ];
   return (
@@ -336,7 +337,7 @@ function ExamsTab({ results }) {
             <div>
               <div className="font-display font-bold text-slate-900">{r.exam?.name}</div>
               <div className="text-xs text-slate-500">
-                {r.exam && new Date(r.exam.startDate).toLocaleDateString()}
+                {r.exam && formatBS(r.exam.startDate)}
               </div>
             </div>
             <div className="text-right">

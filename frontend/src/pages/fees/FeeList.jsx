@@ -8,6 +8,7 @@ import api from '../../api/axios.js';
 import PageHeader from '../../components/ui/PageHeader.jsx';
 import { Loader, EmptyState, Badge } from '../../components/ui/Misc.jsx';
 import ConfirmModal from '../../components/ui/ConfirmModal.jsx';
+import { formatBS } from '../../utils/nepaliDate.js';
 
 // ─── constants ────────────────────────────────────────────────────────────────
 const FEE_TYPES = ['Admission', 'Monthly', 'Exam', 'Transport', 'Hostel', 'Library', 'Identity Card', 'Custom'];
@@ -43,8 +44,8 @@ function updateItem(setter, idx, field, value) {
 function Modal({ title, onClose, children, wide }) {
   return (
     <div className="fixed inset-0 bg-slate-900/50 z-50 overflow-y-auto">
-      <div className="flex min-h-full items-center justify-center p-4">
-        <div className={`bg-white rounded-2xl shadow-xl w-full ${wide ? 'max-w-3xl' : 'max-w-xl'} max-h-[90vh] flex flex-col`}>
+      <div className="flex min-h-full items-start justify-center p-4 pt-8">
+        <div className={`bg-white rounded-2xl shadow-xl w-full ${wide ? 'max-w-3xl' : 'max-w-xl'} max-h-[85vh] flex flex-col`}>
           <div className="flex items-center justify-between px-7 py-5 border-b">
             <h3 className="font-display font-bold text-xl">{title}</h3>
             <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100"><X size={20} /></button>
@@ -105,7 +106,7 @@ function PaymentHistory({ fee, onDelete }) {
               {p.remarks && <span className="text-xs text-slate-500 truncate">{p.remarks}</span>}
             </div>
             <div className="text-xs text-slate-400 mt-0.5">
-              {new Date(p.paidDate).toLocaleDateString('en-GB')} · {p.receiptNumber}
+              {formatBS(p.paidDate)} · {p.receiptNumber}
             </div>
           </div>
           <button
@@ -151,7 +152,7 @@ ${fee.discount ? `<div class="row"><span class="label">Discount</span><span>NPR 
 <div class="row"><span class="label">Total Paid</span><span>NPR ${Number(payment?.totalPaid ?? fee.totalPaid).toLocaleString()}</span></div>
 <div class="balance">Remaining: NPR ${Number(payment?.remainingBalance ?? fee.remainingBalance).toLocaleString()}</div>
 <div class="row" style="margin-top:14px"><span class="label">Payment Method</span><span>${payment?.paymentMethod || fee.payments?.slice(-1)[0]?.paymentMethod || '—'}</span></div>
-<div class="row"><span class="label">Date</span><span>${new Date(payment?.date || Date.now()).toLocaleDateString('en-GB')}</span></div>
+<div class="row"><span class="label">Date</span><span>${formatBS(payment?.date || Date.now())}</span></div>
 <div class="row"><span class="label">Status</span><strong>${payment?.status || fee.status}</strong></div>
 </body></html>`;
 
@@ -665,7 +666,7 @@ export default function FeeList() {
                 ['Total Paid', fmt(lastReceipt.receipt.totalPaid)],
                 ['Remaining', fmt(lastReceipt.receipt.remainingBalance)],
                 ['Method', lastReceipt.receipt.paymentMethod],
-                ['Date', new Date(lastReceipt.receipt.date).toLocaleDateString('en-GB')],
+                ['Date', formatBS(lastReceipt.receipt.date)],
                 ['Status', lastReceipt.receipt.status],
               ].map(([label, val]) => (
                 <div key={label} className="flex justify-between">

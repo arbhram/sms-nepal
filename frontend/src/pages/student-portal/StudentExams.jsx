@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import api from '../../api/axios.js';
+import { formatBS } from '../../utils/nepaliDate.js';
 
 const STATUS_COLOR = { upcoming: 'bg-blue-100 text-blue-700', ongoing: 'bg-yellow-100 text-yellow-700', completed: 'bg-green-100 text-green-700' };
 
@@ -32,7 +33,7 @@ export default function StudentExams() {
                 <div className="flex items-start justify-between mb-3">
                   <div>
                     <h3 className="font-display font-semibold text-slate-900">{exam.name}</h3>
-                    <p className="text-xs text-slate-400 mt-0.5">{new Date(exam.startDate).toLocaleDateString()} {exam.endDate ? `— ${new Date(exam.endDate).toLocaleDateString()}` : ''}</p>
+                    <p className="text-xs text-slate-400 mt-0.5">{formatBS(exam.startDate)} {exam.endDate ? `— ${formatBS(exam.endDate)}` : ''}</p>
                   </div>
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLOR[exam.status]}`}>{exam.status}</span>
                 </div>

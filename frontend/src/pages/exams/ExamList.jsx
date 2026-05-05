@@ -5,6 +5,7 @@ import api from '../../api/axios.js';
 import PageHeader from '../../components/ui/PageHeader.jsx';
 import { Loader, EmptyState, Badge } from '../../components/ui/Misc.jsx';
 import ConfirmModal from '../../components/ui/ConfirmModal.jsx';
+import { formatBS } from '../../utils/nepaliDate.js';
 
 export default function ExamList() {
   const [exams, setExams] = useState([]);
@@ -91,8 +92,8 @@ export default function ExamList() {
                 <div className="text-sm text-slate-500 mt-1">{ex.class?.name}</div>
                 <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-3">
                   <Calendar size={13} />
-                  {new Date(ex.startDate).toLocaleDateString()}
-                  {ex.endDate && ` — ${new Date(ex.endDate).toLocaleDateString()}`}
+                  {formatBS(ex.startDate)}
+                  {ex.endDate && ` — ${formatBS(ex.endDate)}`}
                 </div>
                 <div className="mt-3 pt-3 border-t border-slate-100 flex flex-wrap gap-1">
                   {(ex.subjects || []).slice(0, 5).map((s, i) => (
@@ -119,7 +120,7 @@ export default function ExamList() {
 
       {modalOpen && (
         <div className="fixed inset-0 bg-slate-900/50 z-50 overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center p-4">
+          <div className="flex min-h-full items-start justify-center p-4 pt-8">
           <form onSubmit={create} className="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-display font-bold text-lg">Schedule Exam</h3>

@@ -1,15 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Megaphone } from 'lucide-react';
 import api from '../../api/axios.js';
+import { formatBS } from '../../utils/nepaliDate.js';
 
 const AUDIENCE_LABELS = {
   student: { label: 'Students', color: 'bg-green-100 text-green-700' },
   both: { label: 'Everyone', color: 'bg-purple-100 text-purple-700' },
 };
 
-function formatDate(date) {
-  return new Date(date).toLocaleDateString('en-NP', { day: 'numeric', month: 'short', year: 'numeric' });
-}
+const formatDate = formatBS;
 
 export default function StudentNotices() {
   const [notices, setNotices] = useState([]);

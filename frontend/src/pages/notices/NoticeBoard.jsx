@@ -3,6 +3,7 @@ import { Megaphone, Trash2, Plus, X } from 'lucide-react';
 import api from '../../api/axios.js';
 import toast from 'react-hot-toast';
 import ConfirmModal from '../../components/ui/ConfirmModal.jsx';
+import { formatBSRelative } from '../../utils/nepaliDate.js';
 
 const AUDIENCE_LABELS = {
   teacher: { label: 'Teachers Only', color: 'bg-blue-100 text-blue-700' },
@@ -10,13 +11,7 @@ const AUDIENCE_LABELS = {
   both: { label: 'Everyone', color: 'bg-purple-100 text-purple-700' },
 };
 
-function timeAgo(date) {
-  const diff = Math.floor((Date.now() - new Date(date)) / 1000);
-  if (diff < 60) return 'just now';
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-  return new Date(date).toLocaleDateString();
-}
+const timeAgo = formatBSRelative;
 
 export default function NoticeBoard() {
   const [notices, setNotices] = useState([]);

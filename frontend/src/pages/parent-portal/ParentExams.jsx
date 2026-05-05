@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { Users } from 'lucide-react';
 import api from '../../api/axios.js';
+import { formatBS } from '../../utils/nepaliDate.js';
 import { Badge } from '../../components/ui/Misc.jsx';
 
 export default function ParentExams() {
@@ -61,8 +62,8 @@ export default function ParentExams() {
                   <div>
                     <h3 className="font-display font-bold text-slate-900">{exam.name}</h3>
                     <p className="text-sm text-slate-500 mt-0.5">
-                      {new Date(exam.startDate).toLocaleDateString()}
-                      {exam.endDate && ` — ${new Date(exam.endDate).toLocaleDateString()}`}
+                      {formatBS(exam.startDate)}
+                      {exam.endDate && ` — ${formatBS(exam.endDate)}`}
                     </p>
                   </div>
                   <Badge color={status === 'upcoming' ? 'blue' : status === 'ongoing' ? 'yellow' : 'green'}>

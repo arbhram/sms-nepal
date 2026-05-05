@@ -5,6 +5,7 @@ import api from '../../api/axios.js';
 import PageHeader from '../../components/ui/PageHeader.jsx';
 import StatCard from '../../components/ui/StatCard.jsx';
 import { Loader } from '../../components/ui/Misc.jsx';
+import { formatBS } from '../../utils/nepaliDate.js';
 
 const COLORS = ['#0c7fff', '#10b981', '#f97316', '#8b5cf6', '#f43f5e', '#f59e0b'];
 
@@ -90,7 +91,7 @@ export default function Reports() {
                   <div className="text-xs text-slate-500">{ex.class?.name}</div>
                 </div>
                 <div className="text-sm text-slate-600">
-                  {new Date(ex.startDate).toLocaleDateString()}
+                  {formatBS(ex.startDate)}
                 </div>
               </div>
             ))}

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import api from '../../api/axios.js';
+import { formatBS } from '../../utils/nepaliDate.js';
 
 export default function StudentFees() {
   const [fees, setFees] = useState([]);
@@ -55,7 +56,7 @@ export default function StudentFees() {
                     {f.paidAmount >= f.amount ? 'Paid' : 'Unpaid'}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-slate-400 text-xs">{f.paidDate ? new Date(f.paidDate).toLocaleDateString() : '—'}</td>
+                <td className="px-4 py-3 text-slate-400 text-xs">{f.paidDate ? formatBS(f.paidDate) : '—'}</td>
               </tr>
             ))}
           </tbody>

@@ -5,6 +5,7 @@ import {
   ArrowUpRight, ChevronRight, ClipboardList,
 } from 'lucide-react';
 import api from '../../api/axios.js';
+import { formatBS } from '../../utils/nepaliDate.js';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -73,7 +74,7 @@ export default function TeacherDashboard() {
           <p className="text-slate-500 mt-1 text-sm">
             {profile?.subject && <span className="font-medium text-slate-600">{profile.subject}</span>}
             {profile?.subject && ' · '}
-            {new Date().toLocaleDateString('en-NP', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+            {formatBS(new Date(), 'full')}
           </p>
         </div>
         <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-100 rounded-xl text-emerald-700 text-sm font-medium">

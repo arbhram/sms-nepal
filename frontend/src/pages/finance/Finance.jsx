@@ -12,6 +12,7 @@ import {
 import api from '../../api/axios.js';
 import PageHeader from '../../components/ui/PageHeader.jsx';
 import { Loader } from '../../components/ui/Misc.jsx';
+import { formatBS, currentBSYear } from '../../utils/nepaliDate.js';
 import ConfirmModal from '../../components/ui/ConfirmModal.jsx';
 
 const INCOME_CATEGORIES = ['Fee Collection', 'Donation', 'Government Grant', 'Rental Income', 'Other Income'];
@@ -222,7 +223,7 @@ export default function Finance() {
 
       {/* Chart */}
       <div className="card p-6 mb-6">
-        <h3 className="font-display font-bold text-slate-900 mb-1">Income vs Expense — {new Date().getFullYear()}</h3>
+        <h3 className="font-display font-bold text-slate-900 mb-1">Income vs Expense — B.S. {currentBSYear()}</h3>
         <p className="text-sm text-slate-500 mb-5">Monthly overview</p>
         <ResponsiveContainer width="100%" height={220}>
           <AreaChart data={chartData}>
@@ -291,7 +292,7 @@ export default function Finance() {
                 {filtered.map((tx) => (
                   <tr key={tx._id} className="hover:bg-slate-50/60 transition-colors">
                     <td className="px-4 py-3 text-slate-500 whitespace-nowrap">
-                      {new Date(tx.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      {formatBS(tx.date)}
                     </td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${
@@ -336,7 +337,7 @@ export default function Finance() {
       {/* Add / Edit Modal */}
       {modalOpen && (
         <div className="fixed inset-0 bg-slate-900/50 z-50 overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center p-4">
+          <div className="flex min-h-full items-start justify-center p-4 pt-8">
             <form onSubmit={save} className="bg-white rounded-2xl w-full max-w-lg p-6 shadow-xl">
               <div className="flex items-center justify-between mb-5">
                 <h3 className="font-display font-bold text-lg">{editing ? 'Edit Transaction' : 'Add Transaction'}</h3>

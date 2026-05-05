@@ -27,7 +27,7 @@ export default function ConfirmModal({
 }) {
   return (
     <div className="fixed inset-0 bg-slate-900/50 z-50 overflow-y-auto">
-      <div className="flex min-h-full items-center justify-center p-4">
+      <div className="flex min-h-full items-start justify-center p-4 pt-8">
         <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
           <div className="flex items-start gap-3 mb-3">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${danger ? 'bg-rose-100' : 'bg-amber-100'}`}>

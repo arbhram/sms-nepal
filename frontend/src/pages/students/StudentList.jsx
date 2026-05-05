@@ -13,7 +13,7 @@ function PasswordModal({ email, password, onClose }) {
   const copy = (text) => { navigator.clipboard.writeText(text); toast.success('Copied!'); };
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/40 backdrop-blur-sm">
-      <div className="flex min-h-full items-center justify-center p-4">
+      <div className="flex min-h-full items-start justify-center p-4 pt-8">
         <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center"><KeyRound size={20} className="text-green-600" /></div>
@@ -152,7 +152,7 @@ export default function StudentList() {
       )}
       {promoteOpen && (
         <div className="fixed inset-0 bg-slate-900/50 z-50 overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center p-4">
+          <div className="flex min-h-full items-start justify-center p-4 pt-8">
           <form onSubmit={handlePromote} className="bg-white rounded-2xl w-full max-w-sm p-6 shadow-xl">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-display font-bold text-lg">Promote Students</h3>

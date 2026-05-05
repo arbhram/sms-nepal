@@ -9,6 +9,7 @@ import {
 } from 'recharts';
 import api from '../../api/axios.js';
 import { Loader } from '../../components/ui/Misc.jsx';
+import { formatBS } from '../../utils/nepaliDate.js';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const STATUS_COLORS = { Present: '#10b981', Absent: '#f43f5e', Leave: '#f59e0b', Late: '#6366f1' };
@@ -103,7 +104,7 @@ export default function Dashboard() {
             {greeting}, {user.name?.split(' ')[0] || 'Admin'}
           </h1>
           <p className="text-slate-500 mt-1 text-sm">
-            {new Date().toLocaleDateString('en-NP', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+            {formatBS(new Date(), 'full')}
           </p>
         </div>
         <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-100 rounded-xl text-emerald-700 text-sm font-medium">

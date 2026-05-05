@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import api from '../../api/axios.js';
+import { formatBS } from '../../utils/nepaliDate.js';
 
 const STATUS_COLOR = { Present: 'bg-green-100 text-green-700', Absent: 'bg-rose-100 text-rose-700', Late: 'bg-yellow-100 text-yellow-700', Leave: 'bg-blue-100 text-blue-700' };
 
@@ -49,7 +50,7 @@ export default function StudentAttendance() {
               <tr><td colSpan={3} className="px-4 py-8 text-center text-slate-400">No attendance records found.</td></tr>
             ) : data.records.map((r) => (
               <tr key={r._id} className="hover:bg-slate-50">
-                <td className="px-4 py-3 text-slate-700">{new Date(r.date).toLocaleDateString('en-NP', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}</td>
+                <td className="px-4 py-3 text-slate-700">{formatBS(r.date, 'full')}</td>
                 <td className="px-4 py-3">
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLOR[r.status]}`}>{r.status}</span>
                 </td>

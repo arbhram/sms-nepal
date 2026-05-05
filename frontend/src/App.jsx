@@ -18,6 +18,8 @@ import NoticeBoard from './pages/notices/NoticeBoard.jsx';
 import ParentList from './pages/parents/ParentList.jsx';
 import Finance from './pages/finance/Finance.jsx';
 import Gradebook from './pages/exams/Gradebook.jsx';
+import FeeStructures from './pages/fees/FeeStructures.jsx';
+import StudentFeeAssignments from './pages/fees/StudentFeeAssignments.jsx';
 import TeacherGradebook from './pages/teacher-portal/TeacherGradebook.jsx';
 import ParentReportCard from './pages/parent-portal/ParentReportCard.jsx';
 import StudentReportCard from './pages/student-portal/StudentReportCard.jsx';
@@ -137,6 +139,8 @@ export default function App() {
         <Route path="parents" element={<ParentList />} />
         <Route path="finance" element={<Finance />} />
         <Route path="gradebook" element={<Gradebook />} />
+        <Route path="fees/structures" element={<FeeStructures />} />
+        <Route path="fees/assignments" element={<StudentFeeAssignments />} />
         <Route path="settings" element={<Settings />} />
       </Route>
 
