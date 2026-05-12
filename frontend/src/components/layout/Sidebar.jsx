@@ -1,8 +1,8 @@
 import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard, Users, GraduationCap, BookOpen, Wallet,
-  CalendarCheck, ClipboardList, BarChart3, Megaphone, Settings, X, UserCheck, PiggyBank,
-  LayoutList, UserCog,
+  CalendarCheck, ClipboardList, BarChart3, Megaphone, Settings, X, UserCheck,
+  LayoutList, UserCog, BookMarked, ScrollText, Scale, TrendingUp, Landmark,
 } from 'lucide-react';
 
 const SECTIONS = [
@@ -27,9 +27,23 @@ const SECTIONS = [
       { to: '/fees', label: 'Fee Ledger', icon: Wallet },
       { to: '/fees/structures', label: 'Fee Structures', icon: LayoutList },
       { to: '/fees/assignments', label: 'Fee Assignments', icon: UserCog },
-      { to: '/finance', label: 'Finance', icon: PiggyBank },
       { to: '/attendance', label: 'Attendance', icon: CalendarCheck },
       { to: '/exams', label: 'Exams', icon: ClipboardList },
+    ],
+  },
+  {
+    label: 'Payroll',
+    items: [
+      { to: '/payroll', label: 'Payroll Runs', icon: Landmark },
+    ],
+  },
+  {
+    label: 'Accounting',
+    items: [
+      { to: '/accounting/chart-of-accounts', label: 'Chart of Accounts', icon: BookMarked },
+      { to: '/accounting/journals',          label: 'Journals',           icon: ScrollText },
+      { to: '/accounting/trial-balance',     label: 'Trial Balance',      icon: Scale },
+      { to: '/accounting/reports',           label: 'Financial Reports',  icon: TrendingUp },
     ],
   },
   {

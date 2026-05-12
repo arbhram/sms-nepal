@@ -23,6 +23,8 @@ import transactionRoutes from './routes/transactionRoutes.js';
 import reportCardRoutes from './routes/reportCardRoutes.js';
 import feeStructureRoutes from './routes/feeStructureRoutes.js';
 import systemConfigRoutes from './routes/systemConfigRoutes.js';
+import accountingRoutes from './routes/accountingRoutes.js';
+import payrollRoutes from './routes/payrollRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -67,6 +69,8 @@ app.use('/api/transactions', transactionRoutes);
 app.use('/api/report-cards', reportCardRoutes);
 app.use('/api/fee-structures', feeStructureRoutes);
 app.use('/api/system-config', systemConfigRoutes);
+app.use('/api/accounting',   accountingRoutes);
+app.use('/api/payroll',      payrollRoutes);
 
 app.get('/', (_req, res) => {
   res.json({ message: 'SMS Nepal API is running...', version: '1.0.0' });

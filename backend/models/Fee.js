@@ -12,6 +12,7 @@ const paymentSchema = new mongoose.Schema(
     receiptNumber: { type: String },
     remarks: { type: String, default: '' },
     recordedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    journalRef: { type: mongoose.Schema.Types.ObjectId, ref: 'Journal', default: null },
   },
   { _id: true }
 );
@@ -53,6 +54,9 @@ const feeSchema = new mongoose.Schema(
 
     // ── Payments (immutable log — never overwritten) ─────────────────────────
     payments: [paymentSchema],
+
+    // Journal link for the invoice entry (Dr AR, Cr Revenue)
+    invoiceJournalRef: { type: mongoose.Schema.Types.ObjectId, ref: 'Journal', default: null },
 
     // ── Optional metadata ────────────────────────────────────────────────────
     dueDate: { type: Date },

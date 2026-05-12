@@ -54,6 +54,7 @@ const transactionSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
     },
+    journalRef: { type: mongoose.Schema.Types.ObjectId, ref: 'Journal', default: null },
   },
   { timestamps: true }
 );

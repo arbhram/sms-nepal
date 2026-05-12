@@ -1,29 +1,61 @@
+import mongoose from 'mongoose';
 import asyncHandler from 'express-async-handler';
 import Fee from '../models/Fee.js';
 import Student from '../models/Student.js';
 import Transaction from '../models/Transaction.js';
 import { generateId } from '../utils/helpers.js';
+import { currentAcademicYear } from '../utils/nepaliDate.js';
 import { notifyStudent, notify } from '../utils/notify.js';
+import {
+  postInvoiceJournal,
+  postPaymentJournal,
+  reversePaymentJournal,
+  reverseInvoiceJournal,
+} from '../services/feeAccountingService.js';
 
 // ─── Assign fee ───────────────────────────────────────────────────────────────
 // POST /api/fees
 export const createFee = asyncHandler(async (req, res) => {
-  const data = { ...req.body };
-  if (!data.receiptNumber) data.receiptNumber = generateId('RCP');
-  if (!data.academicYear) data.academicYear = `${new Date().getFullYear()}`;
-  const fee = await Fee.create(data);
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    const data = { ...req.body };
+    if (!data.receiptNumber) data.receiptNumber = generateId('RCP');
+    if (!data.academicYear) data.academicYear = currentAcademicYear();
+    const [fee] = await Fee.create([data], { session });
 
-  if (fee.student) {
-    notifyStudent({
-      studentId: fee.student,
-      title: 'New Fee Assigned',
-      message: `A new ${fee.category} fee of Rs. ${fee.totalAssignedFee} has been assigned${fee.dueDate ? ` (due ${new Date(fee.dueDate).toLocaleDateString()})` : ''}.`,
-      type: 'fee',
-      createdBy: req.user._id,
-    });
+    // Post invoice journal: Dr AR, Cr Revenue
+    try {
+      await fee.populate('student', 'fullName');
+      const journal = await postInvoiceJournal({ fee, createdBy: req.user._id }, session);
+      if (journal) {
+        fee.invoiceJournalRef = journal._id;
+        await fee.save({ session });
+      }
+    } catch (journalErr) {
+      // Non-fatal: accounting not set up yet (accounts not seeded)
+      console.warn('Invoice journal skipped:', journalErr.message);
+    }
+
+    await session.commitTransaction();
+
+    if (fee.student) {
+      notifyStudent({
+        studentId: fee.student,
+        title: 'New Fee Assigned',
+        message: `A new ${fee.category} fee of Rs. ${fee.totalAssignedFee} has been assigned${fee.dueDate ? ` (due ${new Date(fee.dueDate).toLocaleDateString()})` : ''}.`,
+        type: 'fee',
+        createdBy: req.user._id,
+      });
+    }
+
+    res.status(201).json(fee);
+  } catch (err) {
+    await session.abortTransaction();
+    throw err;
+  } finally {
+    session.endSession();
   }
-
-  res.status(201).json(fee);
 });
 
 // ─── List fees ────────────────────────────────────────────────────────────────
@@ -90,7 +122,28 @@ export const updateFee = asyncHandler(async (req, res) => {
 export const deleteFee = asyncHandler(async (req, res) => {
   const fee = await Fee.findById(req.params.id);
   if (!fee) { res.status(404); throw new Error('Fee record not found'); }
-  await fee.deleteOne();
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    // Reverse all payment journals first, then the invoice journal
+    for (const payment of fee.payments) {
+      if (payment.journalRef) {
+        await reversePaymentJournal(payment.journalRef, req.user._id, session).catch(() => {});
+      }
+    }
+    if (fee.invoiceJournalRef) {
+      await reverseInvoiceJournal(fee.invoiceJournalRef, req.user._id, session).catch(() => {});
+    }
+    await fee.deleteOne({ session });
+    await session.commitTransaction();
+  } catch (err) {
+    await session.abortTransaction();
+    throw err;
+  } finally {
+    session.endSession();
+  }
+
   res.json({ message: 'Fee record deleted' });
 });
 
@@ -107,24 +160,47 @@ export const addPayment = asyncHandler(async (req, res) => {
   if (!payAmount || payAmount <= 0) {
     res.status(400); throw new Error('Payment amount must be a positive number');
   }
-  if (payAmount > fee.remainingBalance + 0.01) { // 0.01 epsilon for float safety
+  if (payAmount > fee.remainingBalance + 0.01) {
     res.status(400);
     throw new Error(`Payment of NPR ${payAmount} exceeds remaining balance of NPR ${fee.remainingBalance}`);
   }
 
   const payReceiptNumber = generateId('PMT');
-  fee.payments.push({
-    amount: payAmount,
-    paymentMethod,
-    paidDate: paidDate ? new Date(paidDate) : new Date(),
-    receiptNumber: payReceiptNumber,
-    remarks: remarks || '',
-    recordedBy: req.user._id,
-  });
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    fee.payments.push({
+      amount: payAmount,
+      paymentMethod,
+      paidDate: paidDate ? new Date(paidDate) : new Date(),
+      receiptNumber: payReceiptNumber,
+      remarks: remarks || '',
+      recordedBy: req.user._id,
+    });
 
-  await fee.save(); // pre-save atomically recalculates totalPaid, remainingBalance, status
+    await fee.save({ session });
 
-  // Auto-record as Finance income
+    // Post payment journal: Dr Cash/Bank, Cr AR
+    const payment = fee.payments[fee.payments.length - 1];
+    try {
+      const journal = await postPaymentJournal({ fee, payment, createdBy: req.user._id }, session);
+      if (journal) {
+        payment.journalRef = journal._id;
+        await fee.save({ session });
+      }
+    } catch (journalErr) {
+      console.warn('Payment journal skipped:', journalErr.message);
+    }
+
+    await session.commitTransaction();
+  } catch (err) {
+    await session.abortTransaction();
+    throw err;
+  } finally {
+    session.endSession();
+  }
+
+  // Auto-record as Finance income (non-blocking, best-effort)
   Transaction.create({
     type: 'income',
     amount: payAmount,
@@ -134,7 +210,7 @@ export const addPayment = asyncHandler(async (req, res) => {
     paymentMethod,
     reference: payReceiptNumber,
     createdBy: req.user._id,
-  }).catch(() => {}); // non-blocking; don't fail the payment if this errors
+  }).catch(() => {});
 
   if (fee.student?._id) {
     if (fee.status === 'Paid') {
@@ -185,12 +261,27 @@ export const deletePayment = asyncHandler(async (req, res) => {
   const idx = fee.payments.findIndex((p) => p._id.toString() === req.params.paymentId);
   if (idx === -1) { res.status(404); throw new Error('Payment entry not found'); }
 
-  const removedReceipt = fee.payments[idx].receiptNumber;
-  fee.payments.splice(idx, 1);
-  await fee.save();
+  const removedReceipt  = fee.payments[idx].receiptNumber;
+  const removedJournal  = fee.payments[idx].journalRef;
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    if (removedJournal) {
+      await reversePaymentJournal(removedJournal, req.user._id, session).catch(() => {});
+    }
+    fee.payments.splice(idx, 1);
+    await fee.save({ session });
+    await session.commitTransaction();
+  } catch (err) {
+    await session.abortTransaction();
+    throw err;
+  } finally {
+    session.endSession();
+  }
+
   await fee.populate('student', 'fullName studentId class section');
 
-  // Remove the auto-created Finance income transaction for this payment
   if (removedReceipt) {
     Transaction.deleteOne({ reference: removedReceipt, category: 'Fee Collection' }).catch(() => {});
   }
@@ -236,7 +327,7 @@ export const bulkAssignFee = asyncHandler(async (req, res) => {
     res.status(404); throw new Error('No active students found in this class/section');
   }
 
-  const year = academicYear || `${new Date().getFullYear()}`;
+  const year = academicYear || currentAcademicYear();
   const fees = students.map((s) => ({
     receiptNumber: generateId('RCP'),
     student: s._id,

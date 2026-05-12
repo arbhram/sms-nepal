@@ -18,6 +18,13 @@ import NoticeBoard from './pages/notices/NoticeBoard.jsx';
 import ParentList from './pages/parents/ParentList.jsx';
 import Finance from './pages/finance/Finance.jsx';
 import Gradebook from './pages/exams/Gradebook.jsx';
+import ChartOfAccounts from './pages/accounting/ChartOfAccounts.jsx';
+import Journals from './pages/accounting/Journals.jsx';
+import TrialBalance from './pages/accounting/TrialBalance.jsx';
+import FinancialReports from './pages/accounting/FinancialReports.jsx';
+import Ledger from './pages/accounting/Ledger.jsx';
+import PayrollList from './pages/payroll/PayrollList.jsx';
+import PayrollDetail from './pages/payroll/PayrollDetail.jsx';
 import FeeStructures from './pages/fees/FeeStructures.jsx';
 import StudentFeeAssignments from './pages/fees/StudentFeeAssignments.jsx';
 import TeacherGradebook from './pages/teacher-portal/TeacherGradebook.jsx';
@@ -142,6 +149,13 @@ export default function App() {
         <Route path="fees/structures" element={<FeeStructures />} />
         <Route path="fees/assignments" element={<StudentFeeAssignments />} />
         <Route path="settings" element={<Settings />} />
+        <Route path="payroll"     element={<PayrollList />} />
+        <Route path="payroll/:id" element={<PayrollDetail />} />
+        <Route path="accounting/chart-of-accounts" element={<ChartOfAccounts />} />
+        <Route path="accounting/journals"           element={<Journals />} />
+        <Route path="accounting/trial-balance"      element={<TrialBalance />} />
+        <Route path="accounting/reports"            element={<FinancialReports />} />
+        <Route path="accounting/ledger/:id"         element={<Ledger />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,5 +1,7 @@
+import mongoose from 'mongoose';
 import asyncHandler from 'express-async-handler';
 import Transaction from '../models/Transaction.js';
+import { postExpenseJournal, reverseExpenseJournal } from '../services/expenseAccountingService.js';
 
 const parseFile = (file) => {
   if (!file) return null;
@@ -63,18 +65,44 @@ export const createTransaction = asyncHandler(async (req, res) => {
     ? items.reduce((s, i) => s + Number(i.quantity) * Number(i.unitPrice), 0)
     : Number(req.body.amount);
 
-  const tx = await Transaction.create({
-    type: req.body.type,
-    amount,
-    category: req.body.category,
-    description: req.body.description || '',
-    date: req.body.date,
-    paymentMethod: req.body.paymentMethod || 'Cash',
-    reference: req.body.reference || '',
-    items,
-    attachmentUrl: parseFile(req.file) || '',
-    createdBy: req.user._id,
-  });
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  let tx;
+  try {
+    [tx] = await Transaction.create([{
+      type: req.body.type,
+      amount,
+      category: req.body.category,
+      description: req.body.description || '',
+      date: req.body.date,
+      paymentMethod: req.body.paymentMethod || 'Cash',
+      reference: req.body.reference || '',
+      items,
+      attachmentUrl: parseFile(req.file) || '',
+      createdBy: req.user._id,
+    }], { session });
+
+    // Journal only for expense; income (fee collection etc.) is handled elsewhere
+    if (tx.type === 'expense') {
+      try {
+        const journal = await postExpenseJournal({ tx, createdBy: req.user._id }, session);
+        if (journal) {
+          tx.journalRef = journal._id;
+          await tx.save({ session });
+        }
+      } catch (journalErr) {
+        console.warn('Expense journal skipped:', journalErr.message);
+      }
+    }
+
+    await session.commitTransaction();
+  } catch (err) {
+    await session.abortTransaction();
+    throw err;
+  } finally {
+    session.endSession();
+  }
+
   res.status(201).json(tx);
 });
 
@@ -105,7 +133,25 @@ export const updateTransaction = asyncHandler(async (req, res) => {
 
 // DELETE /api/transactions/:id
 export const deleteTransaction = asyncHandler(async (req, res) => {
-  const tx = await Transaction.findByIdAndDelete(req.params.id);
+  const tx = await Transaction.findById(req.params.id);
   if (!tx) { res.status(404); throw new Error('Transaction not found'); }
+
+  if (tx.journalRef) {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    try {
+      await reverseExpenseJournal(tx.journalRef, req.user._id, session);
+      await tx.deleteOne({ session });
+      await session.commitTransaction();
+    } catch (err) {
+      await session.abortTransaction();
+      throw err;
+    } finally {
+      session.endSession();
+    }
+  } else {
+    await tx.deleteOne();
+  }
+
   res.json({ message: 'Deleted' });
 });
