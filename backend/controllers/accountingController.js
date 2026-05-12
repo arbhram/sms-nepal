@@ -418,56 +418,47 @@ export async function getArAging(req, res) {
 
 // ── Fee Journal Backfill ──────────────────────────────────────────────────────
 // Run once after seeding COA to retroactively journal all pre-existing fees.
+// No per-fee transactions — backfill is idempotent (safe to re-run).
 
 export async function backfillFeeJournals(_req, res) {
   let invoiced = 0, payments = 0, errors = 0;
 
-  // Fees without an invoice journal
+  // ── Invoice journals ──────────────────────────────────────────────────────
   const fees = await Fee.find({
     $or: [{ invoiceJournalRef: null }, { invoiceJournalRef: { $exists: false } }],
     totalAssignedFee: { $gt: 0 },
   }).populate('student', 'fullName');
 
+  const invoiceUpdates = [];
   for (const fee of fees) {
-    const session = await mongoose.startSession();
-    session.startTransaction();
     try {
-      const journal = await postInvoiceJournal({ fee, createdBy: null }, session);
+      const journal = await postInvoiceJournal({ fee, createdBy: null }, null);
       if (journal) {
-        fee.invoiceJournalRef = journal._id;
-        await fee.save({ session });
+        invoiceUpdates.push({ updateOne: { filter: { _id: fee._id }, update: { $set: { invoiceJournalRef: journal._id } } } });
         invoiced++;
       }
-      await session.commitTransaction();
-    } catch (err) {
-      await session.abortTransaction();
-      errors++;
-    } finally { session.endSession(); }
+    } catch { errors++; }
   }
+  if (invoiceUpdates.length) await Fee.bulkWrite(invoiceUpdates);
 
-  // Payments without a journal ref
-  const feesWithPayments = await Fee.find({
-    'payments.0': { $exists: true },
-  }).populate('student', 'fullName');
+  // ── Payment journals ──────────────────────────────────────────────────────
+  const feesWithPayments = await Fee.find({ 'payments.0': { $exists: true } })
+    .populate('student', 'fullName');
 
   for (const fee of feesWithPayments) {
+    let dirty = false;
     for (const payment of fee.payments) {
       if (payment.journalRef) continue;
-      const session = await mongoose.startSession();
-      session.startTransaction();
       try {
-        const journal = await postPaymentJournal({ fee, payment, createdBy: null }, session);
+        const journal = await postPaymentJournal({ fee, payment, createdBy: null }, null);
         if (journal) {
           payment.journalRef = journal._id;
-          await fee.save({ session });
+          dirty = true;
           payments++;
         }
-        await session.commitTransaction();
-      } catch (err) {
-        await session.abortTransaction();
-        errors++;
-      } finally { session.endSession(); }
+      } catch { errors++; }
     }
+    if (dirty) await fee.save();
   }
 
   res.json({ message: 'Backfill complete', invoiced, payments, errors });

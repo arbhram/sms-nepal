@@ -58,14 +58,9 @@ export default function ParentPortal() {
       {/* Sidebar */}
       <aside className={`fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-slate-100 flex flex-col transition-transform duration-200 ${open ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 lg:static lg:flex`}>
         {/* Logo */}
-        <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">
-            SN
-          </div>
-          <div>
-            <p className="font-display font-bold text-slate-900 text-sm">SMS Nepal</p>
-            <p className="text-[10px] text-slate-400 uppercase tracking-wider">Parent Portal</p>
-          </div>
+        <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between gap-2">
+          <img src="/wephas-logo.png" alt="wePhas" className="w-36 h-auto object-contain mix-blend-multiply" />
+          <p className="text-[10px] text-slate-400 uppercase tracking-wider whitespace-nowrap shrink-0">Parent Portal</p>
           <button className="ml-auto lg:hidden p-1 rounded hover:bg-slate-100" onClick={() => setOpen(false)}>
             <X size={18} />
           </button>

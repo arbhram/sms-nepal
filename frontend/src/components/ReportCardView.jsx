@@ -1,4 +1,4 @@
-import { Printer, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { Printer, CheckCircle, XCircle } from 'lucide-react';
 
 const GRADE_COLOR = {
   'A+': 'text-emerald-600', 'A': 'text-emerald-600',
@@ -57,7 +57,7 @@ export default function ReportCardView({ student, exam, result, attendance, clas
 
         {/* Header */}
         <div className="bg-gradient-to-r from-brand-600 to-brand-800 text-white px-8 py-6 text-center">
-          <h1 className="text-xl font-display font-bold tracking-wide">SMS Nepal</h1>
+          <h1 className="text-xl font-display font-bold tracking-wide">wePhas</h1>
           <p className="text-brand-200 text-sm mt-0.5">Student Report Card</p>
           {exam && (
             <div className="mt-2 inline-block bg-white/20 rounded-full px-4 py-1 text-sm font-medium">

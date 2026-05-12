@@ -141,7 +141,7 @@ function printReceipt(fee, payment) {
   .box{background:#f8fafc;border-radius:8px;padding:12px 16px;margin:14px 0}
   .balance{font-size:18px;font-weight:700;color:#0c7fff;text-align:right;margin-top:16px}
 </style></head><body>
-<div class="head"><h1>SMS Nepal</h1><p>Official Payment Receipt</p></div>
+<div class="head"><h1>wePhas</h1><p>Official Payment Receipt</p></div>
 <div class="row"><span class="label">Receipt No.</span><strong>${payment?.receiptNumber || fee.receiptNumber}</strong></div>
 <div class="row"><span class="label">Student</span><span>${fee.student?.fullName} (${fee.student?.studentId})</span></div>
 <div class="row"><span class="label">Category</span><span>${fee.category}${fee.month ? ' — ' + fee.month : ''}</span></div>

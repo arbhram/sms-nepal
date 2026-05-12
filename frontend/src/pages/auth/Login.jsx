@@ -165,10 +165,10 @@ export default function Login() {
           {/* Brand mark top-left */}
           <div className="absolute top-5 left-5 flex items-center gap-2 z-10">
             <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center"
+              className="h-8 px-2 rounded-lg flex items-center justify-center"
               style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)' }}
             >
-              <span className="text-white text-[11px] font-bold tracking-tight">SN</span>
+              <img src="/wephas-icon.svg" alt="wePhas" className="h-5 brightness-0 invert" />
             </div>
           </div>
         </div>
@@ -178,14 +178,10 @@ export default function Login() {
 
           {/* Top-right logo badge */}
           <div
-            className="absolute top-0 right-0 w-16 h-16 flex items-center justify-center rounded-bl-2xl"
+            className="absolute top-0 right-0 w-20 h-14 flex items-center justify-center rounded-bl-2xl"
             style={{ background: '#eef5ff', borderLeft: '1px solid #dbeafe', borderBottom: '1px solid #dbeafe' }}
           >
-            <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
-              <circle cx="13" cy="13" r="11" stroke="#0c7fff" strokeWidth="1.4" strokeOpacity="0.4" />
-              <path d="M8 7 L8 19 M18 7 L18 19 M8 13 Q13 9 18 13 Q13 17 8 13Z"
-                stroke="#0c7fff" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" fill="none" strokeOpacity="0.8" />
-            </svg>
+            <img src="/wephas-icon.svg" alt="wePhas" className="h-7" />
           </div>
 
           <div className="max-w-[300px] w-full mx-auto">

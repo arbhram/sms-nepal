@@ -74,17 +74,9 @@ export default function Sidebar({ open, onClose }) {
         }`}
       >
         {/* Logo */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-brand flex items-center justify-center text-white font-bold text-sm shadow-sm">
-              SN
-            </div>
-            <div>
-              <div className="font-display font-bold text-slate-900 text-sm">SMS Nepal</div>
-              <div className="text-[10px] text-slate-400 uppercase tracking-wider">School Manager</div>
-            </div>
-          </div>
-          <button onClick={onClose} className="lg:hidden p-1 rounded hover:bg-slate-100">
+        <div className="flex items-center justify-between px-4 py-4 border-b border-slate-100">
+          <img src="/wephas-logo.png" alt="wePhas" className="h-8 w-auto object-contain" />
+          <button onClick={onClose} className="lg:hidden p-1 rounded hover:bg-slate-100 shrink-0">
             <X size={18} />
           </button>
         </div>
