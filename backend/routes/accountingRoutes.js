@@ -1,7 +1,5 @@
 import express from 'express';
 import { protect, authorize } from '../middleware/authMiddleware.js';
-
-const adminOnly = authorize('superadmin', 'admin');
 import {
   getAccounts, createAccount, updateAccount, deleteAccount, seedCOA,
   getLedger,
@@ -12,6 +10,8 @@ import {
   backfillFeeJournals,
   createManualJournal, reverseJournalEntry, getJournals, getJournal,
 } from '../controllers/accountingController.js';
+
+const adminOnly = authorize('superadmin', 'admin');
 
 const router = express.Router();
 
