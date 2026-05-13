@@ -5,6 +5,7 @@ import Fee from '../models/Fee.js';
 import Attendance from '../models/Attendance.js';
 import { Exam } from '../models/Exam.js';
 import Class from '../models/Class.js';
+import { currentAcademicYear } from '../utils/nepaliDate.js';
 
 export const getDashboardStats = asyncHandler(async (_req, res) => {
   const today = new Date();
@@ -47,14 +48,15 @@ export const getDashboardStats = asyncHandler(async (_req, res) => {
       { $group: { _id: '$status', count: { $sum: 1 } } },
     ]),
 
-    // Pending fees — uses correct field names from Fee model
+    // Pending fees — current academic year only
     Fee.aggregate([
-      { $match: { status: { $in: ['Unpaid', 'Partial'] } } },
+      { $match: { status: { $in: ['Unpaid', 'Partial'] }, academicYear: currentAcademicYear() } },
       { $group: { _id: null, total: { $sum: '$remainingBalance' } } },
     ]),
 
-    // This month's collected revenue — unwind payments subdocument
+    // This month's collected revenue — current academic year, unwind payments subdocument
     Fee.aggregate([
+      { $match: { academicYear: currentAcademicYear() } },
       { $unwind: '$payments' },
       { $match: { 'payments.paidDate': { $gte: monthStart } } },
       { $group: { _id: null, total: { $sum: '$payments.amount' } } },
@@ -65,8 +67,9 @@ export const getDashboardStats = asyncHandler(async (_req, res) => {
       .limit(5)
       .populate('class', 'name'),
 
-    // Revenue trend — last 6 months via payments subdocument
+    // Revenue trend — last 6 months, current academic year only
     Fee.aggregate([
+      { $match: { academicYear: currentAcademicYear() } },
       { $unwind: '$payments' },
       { $match: { 'payments.paidDate': { $gte: sixMonthsAgo } } },
       {
