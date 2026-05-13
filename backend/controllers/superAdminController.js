@@ -65,9 +65,12 @@ export const getSchoolById = asyncHandler(async (req, res) => {
 // @desc   Create a new school tenant
 // @route  POST /api/superadmin/schools
 export const createSchool = asyncHandler(async (req, res) => {
-  const { name, subdomain, email, phone, address, timezone, currency, plan, trialDays } = req.body;
+  const { name, subdomain, email, phone, address, timezone, currency, plan, trialDays, adminEmail, adminPassword, adminName } = req.body;
   if (!name || !subdomain) {
     res.status(400); throw new Error('name and subdomain are required');
+  }
+  if (!adminEmail || !adminPassword) {
+    res.status(400); throw new Error('adminEmail and adminPassword are required');
   }
 
   const conflict = await School.findOne({ subdomain: subdomain.toLowerCase() });
@@ -87,6 +90,15 @@ export const createSchool = asyncHandler(async (req, res) => {
     plan: plan || 'trial',
     trialEndsAt,
     isActive: true,
+  });
+
+  await User.create({
+    name:     adminName || 'Admin',
+    email:    adminEmail.toLowerCase(),
+    password: adminPassword,
+    role:     'admin',
+    isActive: true,
+    schoolId: school._id,
   });
 
   res.status(201).json(school);

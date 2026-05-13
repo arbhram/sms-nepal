@@ -10,7 +10,7 @@ function superAdminApi() {
   });
 }
 
-const EMPTY_FORM = { name: '', subdomain: '', email: '', phone: '', address: '', plan: 'trial', trialDays: '30' };
+const EMPTY_FORM = { name: '', subdomain: '', email: '', phone: '', address: '', plan: 'trial', trialDays: '30', adminName: '', adminEmail: '', adminPassword: '' };
 
 function CreateSchoolModal({ onClose, onCreated }) {
   const [form, setForm] = useState(EMPTY_FORM);
@@ -61,6 +61,25 @@ function CreateSchoolModal({ onClose, onCreated }) {
               {key === 'subdomain' && form.subdomain && (
                 <p className="text-xs text-slate-500 mt-1">{form.subdomain}.myschoolsaas.com</p>
               )}
+            </div>
+          ))}
+          <hr className="border-white/10" />
+          <p className="text-xs text-slate-400 font-medium">Admin Account</p>
+          {[
+            { key: 'adminName',     label: 'Admin Name',     placeholder: 'Ramesh Sharma' },
+            { key: 'adminEmail',    label: 'Admin Email',    placeholder: 'admin@school.com', required: true },
+            { key: 'adminPassword', label: 'Admin Password', placeholder: 'min 6 characters', required: true },
+          ].map(({ key, label, placeholder, required }) => (
+            <div key={key}>
+              <label className="block text-xs text-slate-400 mb-1">{label}{required && ' *'}</label>
+              <input
+                type={key === 'adminPassword' ? 'password' : 'text'}
+                value={form[key]}
+                onChange={set(key)}
+                placeholder={placeholder}
+                required={required}
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500/50"
+              />
             </div>
           ))}
           <div className="grid grid-cols-2 gap-3">
