@@ -10,11 +10,96 @@ function superAdminApi() {
   });
 }
 
+const EMPTY_FORM = { name: '', subdomain: '', email: '', phone: '', address: '', plan: 'trial', trialDays: '30' };
+
+function CreateSchoolModal({ onClose, onCreated }) {
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [saving, setSaving] = useState(false);
+
+  const set = (k) => (e) => {
+    let v = e.target.value;
+    if (k === 'subdomain') v = v.toLowerCase().replace(/[^a-z0-9-]/g, '');
+    setForm((f) => ({ ...f, [k]: v }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const { data } = await superAdminApi().post('/api/superadmin/schools', form);
+      toast.success(`School "${data.name}" created`);
+      onCreated(data);
+      onClose();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to create school');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
+      <div className="bg-slate-800 border border-white/10 rounded-xl w-full max-w-md p-6">
+        <h2 className="font-semibold text-white mb-5">Create School</h2>
+        <form onSubmit={handleSubmit} className="space-y-3">
+          {[
+            { key: 'name',      label: 'School Name',  placeholder: 'Saraswati Public School', required: true },
+            { key: 'subdomain', label: 'Subdomain',    placeholder: 'saraswati', required: true },
+            { key: 'email',     label: 'Email',        placeholder: 'admin@school.com' },
+            { key: 'phone',     label: 'Phone',        placeholder: '9841000000' },
+            { key: 'address',   label: 'Address',      placeholder: 'Kathmandu, Nepal' },
+          ].map(({ key, label, placeholder, required }) => (
+            <div key={key}>
+              <label className="block text-xs text-slate-400 mb-1">{label}{required && ' *'}</label>
+              <input
+                value={form[key]}
+                onChange={set(key)}
+                placeholder={placeholder}
+                required={required}
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500/50"
+              />
+              {key === 'subdomain' && form.subdomain && (
+                <p className="text-xs text-slate-500 mt-1">{form.subdomain}.myschoolsaas.com</p>
+              )}
+            </div>
+          ))}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs text-slate-400 mb-1">Plan</label>
+              <select value={form.plan} onChange={set('plan')} className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500/50">
+                <option value="trial">Trial</option>
+                <option value="starter">Starter</option>
+                <option value="pro">Pro</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs text-slate-400 mb-1">Trial days</label>
+              <input type="number" value={form.trialDays} onChange={set('trialDays')} min="1" max="365"
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500/50" />
+            </div>
+          </div>
+          <div className="flex gap-3 pt-2">
+            <button type="button" onClick={onClose}
+              className="flex-1 py-2 rounded-lg border border-white/10 text-sm text-slate-400 hover:text-white hover:border-white/20 transition">
+              Cancel
+            </button>
+            <button type="submit" disabled={saving}
+              className="flex-1 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-black font-medium text-sm transition disabled:opacity-50">
+              {saving ? 'Creating…' : 'Create School'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 export default function SuperAdminDashboard() {
   const navigate = useNavigate();
   const [metrics, setMetrics] = useState(null);
   const [schools, setSchools] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showCreate, setShowCreate] = useState(false);
 
   const user = JSON.parse(localStorage.getItem('superAdminUser') || '{}');
 
@@ -109,8 +194,14 @@ export default function SuperAdminDashboard() {
 
         {/* Schools table */}
         <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
-          <div className="px-5 py-4 border-b border-white/10">
+          <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between">
             <h2 className="font-semibold text-sm">Schools</h2>
+            <button
+              onClick={() => setShowCreate(true)}
+              className="text-xs px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-black font-medium transition"
+            >
+              + New School
+            </button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -162,6 +253,16 @@ export default function SuperAdminDashboard() {
           </div>
         </div>
       </main>
+
+      {showCreate && (
+        <CreateSchoolModal
+          onClose={() => setShowCreate(false)}
+          onCreated={(school) => {
+            setSchools((prev) => [{ ...school, userCount: 0 }, ...prev]);
+            setMetrics((m) => m ? { ...m, totalSchools: m.totalSchools + 1, activeSchools: m.activeSchools + 1 } : m);
+          }}
+        />
+      )}
     </div>
   );
 }

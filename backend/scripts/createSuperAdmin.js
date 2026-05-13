@@ -6,7 +6,8 @@
  * Environment variables required: MONGO_URI, SUPER_ADMIN_JWT_SECRET
  */
 
-import 'dotenv/config';
+import dotenv from 'dotenv';
+dotenv.config({ path: new URL('../.env', import.meta.url).pathname });
 import mongoose from 'mongoose';
 import { tenantPlugin } from '../tenant/tenantPlugin.js';
 
