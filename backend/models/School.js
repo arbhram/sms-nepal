@@ -9,17 +9,28 @@ const schoolSchema = new mongoose.Schema(
     dbUri:       { type: String, default: null },
     isActive:    { type: Boolean, default: true },
     trialEndsAt: { type: Date, default: () => new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) },
-    address:     { type: String, default: '' },
-    phone:       { type: String, default: '' },
-    email:       { type: String, default: '' },
-    logoUrl:     { type: String, default: '' },
-    timezone:    { type: String, default: 'Asia/Kathmandu' },
-    currency:    { type: String, default: 'NPR' },
+
+    // Branding
+    address:      { type: String, default: '' },
+    phone:        { type: String, default: '' },
+    email:        { type: String, default: '' },
+    logoUrl:      { type: String, default: '' },
+    primaryColor: { type: String, default: '#0c7fff' },
+
+    // Locale
+    timezone: { type: String, default: 'Asia/Kathmandu' },
+    currency: { type: String, default: 'NPR' },
+
+    // Custom domain (premium feature)
+    customDomain:         { type: String, default: null, lowercase: true, trim: true },
+    customDomainVerified: { type: Boolean, default: false },
   },
   {
     timestamps: true,
     tenantScoped: false, // School IS the tenant — never filter by schoolId
   },
 );
+
+schoolSchema.index({ customDomain: 1 }, { sparse: true });
 
 export default mongoose.model('School', schoolSchema);

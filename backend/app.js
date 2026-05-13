@@ -5,7 +5,10 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
+import { tenantResolver } from './middleware/tenantResolver.js';
 import authRoutes from './routes/authRoutes.js';
+import schoolRoutes from './routes/schoolRoutes.js';
+import superAdminRoutes from './routes/superAdminRoutes.js';
 import studentRoutes from './routes/studentRoutes.js';
 import teacherRoutes from './routes/teacherRoutes.js';
 import classRoutes from './routes/classRoutes.js';
@@ -31,13 +34,23 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-const allowedOrigins = process.env.CLIENT_URL
-  ? process.env.CLIENT_URL.split(',').map((o) => o.trim())
-  : ['*'];
+const ROOT_DOMAIN = (process.env.ROOT_DOMAIN || 'myschoolsaas.com').toLowerCase();
+const IS_DEV = process.env.NODE_ENV !== 'production';
+
+function isTrustedOrigin(origin) {
+  if (!origin) return true; // server-to-server or same-origin
+  try {
+    const { hostname } = new URL(origin);
+    if (IS_DEV && (hostname === 'localhost' || hostname.endsWith('.localhost'))) return true;
+    return hostname === ROOT_DOMAIN || hostname.endsWith(`.${ROOT_DOMAIN}`);
+  } catch {
+    return false;
+  }
+}
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+    if (isTrustedOrigin(origin)) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
@@ -47,10 +60,17 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
-if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
+if (IS_DEV) app.use(morgan('dev'));
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Super admin routes — no tenantResolver, separate auth
+app.use('/api/superadmin', superAdminRoutes);
+
+// All tenant routes go through tenantResolver which sets req.school
+app.use(tenantResolver);
+
+app.use('/api/school', schoolRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/students', studentRoutes);
 app.use('/api/teachers', teacherRoutes);

@@ -11,7 +11,7 @@ export const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password, phone, role } = req.body;
   const schoolId = req.user?.schoolId || req.body.schoolId;
 
-  const exists = await User.findOne({ email, schoolId });
+  const exists = await User.findOne({ email, schoolId }).setOptions({ _skipTenant: true });
   if (exists) { res.status(400); throw new Error('Email already registered in this school'); }
 
   const assignedRole = REGISTERABLE_ROLES.includes(role) ? role : 'admin';
@@ -23,22 +23,30 @@ export const registerUser = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc   Login — requires schoolCode to identify tenant
+// @desc   Login — tenant identified by subdomain (req.school set by tenantResolver)
 // @route  POST /api/auth/login
 export const loginUser = asyncHandler(async (req, res) => {
   const { email, password, schoolCode } = req.body;
 
-  // Resolve tenant by subdomain
-  const school = await School.findOne({ subdomain: schoolCode?.toLowerCase(), isActive: true });
-  if (!school) { res.status(404); throw new Error('School not found. Check your school code.'); }
+  // Primary: school resolved from subdomain by tenantResolver middleware
+  // Fallback: schoolCode in body (backward-compat for clients not yet on subdomain routing)
+  let school = req.school;
+  if (!school && schoolCode) {
+    school = await School.findOne({ subdomain: schoolCode.toLowerCase(), isActive: true });
+  }
+  if (!school) {
+    res.status(400);
+    throw new Error('Cannot identify school. Visit your school\'s URL to log in.');
+  }
 
-  // Trial expiry check
   if (school.plan === 'trial' && school.trialEndsAt < new Date()) {
     res.status(403); throw new Error('Trial period expired — contact support to continue.');
   }
 
-  // Find user within that school
-  const user = await User.findOne({ email: email?.toLowerCase(), schoolId: school._id });
+  // Bypass tenant plugin — no AsyncLocalStorage context exists at login time
+  const user = await User.findOne({ email: email?.toLowerCase(), schoolId: school._id })
+    .setOptions({ _skipTenant: true });
+
   if (!user || !(await user.matchPassword(password))) {
     res.status(401); throw new Error('Invalid email or password');
   }
@@ -88,7 +96,7 @@ export const changePassword = asyncHandler(async (req, res) => {
 
 // @desc   List users in current school
 // @route  GET /api/auth/users
-export const getUsers = asyncHandler(async (req, res) => {
-  const users = await User.find({ schoolId: req.user.schoolId }).select('-password').sort({ createdAt: -1 });
+export const getUsers = asyncHandler(async (_req, res) => {
+  const users = await User.find({}).select('-password').sort({ createdAt: -1 });
   res.json(users);
 });

@@ -1,5 +1,8 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext.jsx';
+import { SchoolProvider } from './context/SchoolContext.jsx';
+import SuperAdminLogin from './pages/superadmin/SuperAdminLogin.jsx';
+import SuperAdminDashboard from './pages/superadmin/SuperAdminDashboard.jsx';
 import Layout from './components/layout/Layout.jsx';
 import Login from './pages/auth/Login.jsx';
 import Dashboard from './pages/dashboard/Dashboard.jsx';
@@ -85,8 +88,29 @@ function ProtectedParent({ children }) {
   return children;
 }
 
+// Redirect to /superadmin/login if not authenticated
+function ProtectedSuperAdmin({ children }) {
+  const token = localStorage.getItem('superAdminToken');
+  if (!token) return <Navigate to="/superadmin/login" replace />;
+  return children;
+}
+
 export default function App() {
+  // Super admin subdomain: skip SchoolProvider, show console UI
+  const isSuperAdmin = window.location.hostname.startsWith('admin.');
+
+  if (isSuperAdmin) {
+    return (
+      <Routes>
+        <Route path="/superadmin/login" element={<SuperAdminLogin />} />
+        <Route path="/superadmin/dashboard" element={<ProtectedSuperAdmin><SuperAdminDashboard /></ProtectedSuperAdmin>} />
+        <Route path="*" element={<Navigate to="/superadmin/login" replace />} />
+      </Routes>
+    );
+  }
+
   return (
+    <SchoolProvider>
     <Routes>
       <Route path="/login" element={<Login />} />
 
@@ -160,5 +184,6 @@ export default function App() {
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </SchoolProvider>
   );
 }
