@@ -75,7 +75,7 @@ export default function Sidebar({ open, onClose }) {
       >
         {/* Logo */}
         <div className="flex items-center justify-between px-4 py-4 border-b border-slate-100">
-          <img src="/wephas-logo.png" alt="wePhas" className="h-8 w-auto object-contain" />
+          <img src="/wephas-logo.svg" alt="wePhas" className="w-36 h-auto object-contain" />
           <button onClick={onClose} className="lg:hidden p-1 rounded hover:bg-slate-100 shrink-0">
             <X size={18} />
           </button>

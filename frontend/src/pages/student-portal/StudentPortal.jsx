@@ -48,7 +48,7 @@ export default function StudentPortal() {
       <aside className={`fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-slate-100 flex flex-col transition-transform duration-200 ${open ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 lg:static lg:flex`}>
         {/* Logo */}
         <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between gap-2">
-          <img src="/wephas-logo.png" alt="wePhas" className="w-36 h-auto object-contain mix-blend-multiply" />
+          <img src="/wephas-logo.svg" alt="wePhas" className="w-36 h-auto object-contain" />
           <p className="text-[10px] text-slate-400 uppercase tracking-wider whitespace-nowrap shrink-0">Student Portal</p>
           <button className="ml-auto lg:hidden p-1 rounded hover:bg-slate-100" onClick={() => setOpen(false)}>
             <X size={18} />
