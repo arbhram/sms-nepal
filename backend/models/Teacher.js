@@ -2,7 +2,8 @@ import mongoose from 'mongoose';
 
 const teacherSchema = new mongoose.Schema(
   {
-    teacherId: { type: String, unique: true, required: true },
+    // unique: true removed — uniqueness is per-school via compound index below
+    teacherId: { type: String, required: true, trim: true },
     fullName: { type: String, required: true, trim: true },
     email: { type: String, lowercase: true, trim: true },
     phone: { type: String, required: true },
@@ -17,7 +18,9 @@ const teacherSchema = new mongoose.Schema(
     assignedClasses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Class' }],
     status: { type: String, enum: ['active', 'inactive'], default: 'active' },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
+
+teacherSchema.index({ schoolId: 1, teacherId: 1 }, { unique: true });
 
 export default mongoose.model('Teacher', teacherSchema);

@@ -2,19 +2,19 @@ import mongoose from 'mongoose';
 
 const journalLineSchema = new mongoose.Schema({
   account:     { type: mongoose.Schema.Types.ObjectId, ref: 'Account', required: true },
-  accountCode: { type: String, required: true },   // denormalized for fast reporting
-  accountName: { type: String, required: true },   // denormalized
+  accountCode: { type: String, required: true },
+  accountName: { type: String, required: true },
   type:        { type: String, enum: ['debit', 'credit'], required: true },
   amount:      { type: Number, required: true, min: 0.01 },
   description: { type: String, default: '' },
-  // Optional references for sub-ledger tracking
   student:     { type: mongoose.Schema.Types.ObjectId, ref: 'Student', default: null },
   teacher:     { type: mongoose.Schema.Types.ObjectId, ref: 'Teacher', default: null },
   costCenter:  { type: String, default: '' },
 }, { _id: true });
 
 const journalSchema = new mongoose.Schema({
-  journalNumber: { type: String, required: true, unique: true },
+  // unique: true removed from field — uniqueness enforced via compound index below
+  journalNumber: { type: String, required: true },
   type: {
     type: String,
     enum: ['automatic', 'manual', 'opening', 'closing', 'reversal'],
@@ -42,10 +42,11 @@ const journalSchema = new mongoose.Schema({
   postedAt:    { type: Date },
 }, { timestamps: true });
 
-journalSchema.index({ academicYear: 1, status: 1, date: -1 });
+journalSchema.index({ schoolId: 1, journalNumber: 1 }, { unique: true });
+journalSchema.index({ schoolId: 1, date: -1 });
+journalSchema.index({ schoolId: 1, academicYear: 1, status: 1, date: -1 });
 journalSchema.index({ 'lines.account': 1, status: 1 });
 journalSchema.index({ sourceRef: 1, sourceModel: 1 });
-journalSchema.index({ journalNumber: 1 }, { unique: true });
 journalSchema.index({ 'lines.student': 1, status: 1 });
 
 export default mongoose.model('Journal', journalSchema);

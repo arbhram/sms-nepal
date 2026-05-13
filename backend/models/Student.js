@@ -2,7 +2,8 @@ import mongoose from 'mongoose';
 
 const studentSchema = new mongoose.Schema(
   {
-    studentId: { type: String, unique: true, required: true },
+    // unique: true removed — uniqueness is per-school via compound index below
+    studentId: { type: String, required: true, trim: true },
     fullName: { type: String, required: true, trim: true },
     gender: { type: String, enum: ['Male', 'Female', 'Other'], required: true },
     dateOfBirth: { type: Date, required: true },
@@ -42,9 +43,13 @@ const studentSchema = new mongoose.Schema(
     status: { type: String, enum: ['active', 'inactive', 'graduated'], default: 'active' },
     documents: [{ name: String, url: String, uploadedAt: { type: Date, default: Date.now } }],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-studentSchema.index({ fullName: 'text', studentId: 'text' });
+studentSchema.index({ schoolId: 1, studentId: 1 }, { unique: true });
+studentSchema.index({ schoolId: 1, rollNumber: 1 });
+studentSchema.index({ schoolId: 1, createdAt: -1 });
+// Text search scoped to school so MongoDB can use schoolId as a partition key
+studentSchema.index({ schoolId: 1, fullName: 'text', studentId: 'text' });
 
 export default mongoose.model('Student', studentSchema);

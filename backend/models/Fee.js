@@ -14,12 +14,13 @@ const paymentSchema = new mongoose.Schema(
     recordedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     journalRef: { type: mongoose.Schema.Types.ObjectId, ref: 'Journal', default: null },
   },
-  { _id: true }
+  { _id: true },
 );
 
 const feeSchema = new mongoose.Schema(
   {
-    receiptNumber: { type: String, unique: true, required: true },
+    // unique: true removed — uniqueness enforced via compound index below
+    receiptNumber: { type: String, required: true },
     student: { type: mongoose.Schema.Types.ObjectId, ref: 'Student', required: true },
     academicYear: { type: String, default: () => `${new Date().getFullYear()}` },
 
@@ -29,7 +30,6 @@ const feeSchema = new mongoose.Schema(
       required: true,
     },
 
-    // Multiple fee line-items bundled in one record (optional detail)
     feeItems: [
       {
         type: { type: String },
@@ -38,33 +38,28 @@ const feeSchema = new mongoose.Schema(
       },
     ],
 
-    // ── Fee amounts (all NPR) ────────────────────────────────────────────────
     totalAssignedFee: { type: Number, required: true, min: 0 },
     discount: { type: Number, default: 0, min: 0 },
 
-    // Computed by pre-save — do NOT set these manually
     totalPaid: { type: Number, default: 0 },
     remainingBalance: { type: Number, default: 0 },
 
-    // ── Status ───────────────────────────────────────────────────────────────
-    // Unpaid  → no payments made yet
-    // Partial → some amount paid, balance remaining
-    // Paid    → fully settled
     status: { type: String, enum: ['Unpaid', 'Partial', 'Paid'], default: 'Unpaid' },
 
-    // ── Payments (immutable log — never overwritten) ─────────────────────────
     payments: [paymentSchema],
 
-    // Journal link for the invoice entry (Dr AR, Cr Revenue)
     invoiceJournalRef: { type: mongoose.Schema.Types.ObjectId, ref: 'Journal', default: null },
 
-    // ── Optional metadata ────────────────────────────────────────────────────
     dueDate: { type: Date },
-    month: { type: String }, // e.g. "Baishakh 2082"
+    month: { type: String },
     remarks: { type: String },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
+
+feeSchema.index({ schoolId: 1, receiptNumber: 1 }, { unique: true });
+feeSchema.index({ schoolId: 1, student: 1 });
+feeSchema.index({ schoolId: 1, academicYear: 1, status: 1 });
 
 // Always recompute totals and status from the payments array on every save.
 feeSchema.pre('save', function (next) {

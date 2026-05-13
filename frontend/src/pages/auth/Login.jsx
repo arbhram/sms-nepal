@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import toast from 'react-hot-toast';
-import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, School } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
 
 export default function Login() {
@@ -12,14 +12,15 @@ export default function Login() {
   const [showPass, setShowPass] = useState(false);
 
   const formik = useFormik({
-    initialValues: { email: 'admin@sms.np', password: 'admin123' },
+    initialValues: { schoolCode: 'myschool', email: 'admin@sms.np', password: 'admin123' },
     validationSchema: Yup.object({
+      schoolCode: Yup.string().required('Required'),
       email: Yup.string().email('Invalid email').required('Required'),
       password: Yup.string().min(6).required('Required'),
     }),
     onSubmit: async (values, { setSubmitting }) => {
       try {
-        const data = await login(values.email, values.password);
+        const data = await login(values.email, values.password, values.schoolCode);
         toast.success('Welcome back!');
         if (data.role === 'student') navigate('/student/dashboard');
         else if (data.role === 'teacher') navigate('/teacher/dashboard');
@@ -193,6 +194,23 @@ export default function Login() {
 
             <form onSubmit={formik.handleSubmit} className="space-y-4">
 
+              {/* School Code */}
+              <div className="flex items-center gap-3 rounded-full px-5 py-3.5 bg-slate-50 border border-slate-200 transition-all focus-within:border-brand-400 focus-within:ring-2 focus-within:ring-brand-100">
+                <School size={15} className="text-slate-400 flex-shrink-0" />
+                <input
+                  name="schoolCode"
+                  type="text"
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  value={formik.values.schoolCode}
+                  placeholder="School code"
+                  className="flex-1 bg-transparent text-sm text-slate-800 placeholder-slate-400 outline-none"
+                />
+              </div>
+              {formik.errors.schoolCode && formik.touched.schoolCode && (
+                <p className="text-[11px] text-rose-500 -mt-2 pl-5">{formik.errors.schoolCode}</p>
+              )}
+
               {/* Email */}
               <div className="flex items-center gap-3 rounded-full px-5 py-3.5 bg-slate-50 border border-slate-200 transition-all focus-within:border-brand-400 focus-within:ring-2 focus-within:ring-brand-100">
                 <Mail size={15} className="text-slate-400 flex-shrink-0" />
@@ -255,10 +273,10 @@ export default function Login() {
               </p>
               <button
                 type="button"
-                onClick={() => formik.setValues({ email: 'admin@sms.np', password: 'admin123' })}
+                onClick={() => formik.setValues({ schoolCode: 'myschool', email: 'admin@sms.np', password: 'admin123' })}
                 className="w-full text-[11px] font-mono text-brand-600 hover:text-brand-700 transition py-2 rounded-full bg-brand-50 hover:bg-brand-100 border border-brand-100"
               >
-                admin@sms.np · admin123
+                myschool · admin@sms.np · admin123
               </button>
             </div>
 

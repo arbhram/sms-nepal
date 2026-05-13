@@ -1,8 +1,16 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import connectDB from './config/db.js';
-import app from './app.js';
+import mongoose from 'mongoose';
+import { tenantPlugin } from './tenant/tenantPlugin.js';
+
+// Must run before any model file is evaluated — mongoose.model() applies registered
+// global plugins at call time. Dynamic imports below ensure model files load after
+// this line (static imports are hoisted in ESM and would load models too early).
+mongoose.plugin(tenantPlugin);
+
+const { default: connectDB } = await import('./config/db.js');
+const { default: app }       = await import('./app.js');
 
 connectDB();
 

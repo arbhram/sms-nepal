@@ -4,7 +4,8 @@ import bcrypt from 'bcryptjs';
 const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
-    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    // unique: true removed — uniqueness is per-school via compound index below
+    email: { type: String, required: true, lowercase: true, trim: true },
     password: { type: String, required: true, minlength: 6 },
     phone: { type: String, trim: true },
     role: {
@@ -13,12 +14,16 @@ const userSchema = new mongoose.Schema(
       default: 'admin',
     },
     avatar: { type: String, default: '' },
-    isActive: { type: Boolean, default: true },
+    isActive:  { type: Boolean, default: true },
+    schoolId:  { type: mongoose.Schema.Types.ObjectId, ref: 'School', index: true },
     linkedStudents: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Student' }],
-    linkedTeacher: { type: mongoose.Schema.Types.ObjectId, ref: 'Teacher' },
+    linkedTeacher:  { type: mongoose.Schema.Types.ObjectId, ref: 'Teacher' },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
+
+// Email unique per school (two schools can share the same email address)
+userSchema.index({ schoolId: 1, email: 1 }, { unique: true });
 
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();

@@ -1,64 +1,55 @@
 import asyncHandler from 'express-async-handler';
 import User from '../models/User.js';
+import School from '../models/School.js';
 import { generateToken } from '../utils/helpers.js';
 
-// Roles that may be assigned via the /register endpoint.
-// 'superadmin' is intentionally excluded — create only via seed script.
 const REGISTERABLE_ROLES = ['admin', 'teacher', 'student', 'parent'];
 
-// @desc   Register a staff/admin user (admin or superadmin only)
+// @desc   Register a user within a school (admin/superadmin only)
 // @route  POST /api/auth/register
 export const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password, phone, role } = req.body;
+  const schoolId = req.user?.schoolId || req.body.schoolId;
 
-  const exists = await User.findOne({ email });
-  if (exists) {
-    res.status(400);
-    throw new Error('Email already registered');
-  }
+  const exists = await User.findOne({ email, schoolId });
+  if (exists) { res.status(400); throw new Error('Email already registered in this school'); }
 
   const assignedRole = REGISTERABLE_ROLES.includes(role) ? role : 'admin';
-
-  const user = await User.create({
-    name,
-    email,
-    password,
-    phone,
-    role: assignedRole,
-  });
+  const user = await User.create({ name, email, password, phone, role: assignedRole, schoolId });
 
   res.status(201).json({
-    _id: user._id,
-    name: user.name,
-    email: user.email,
-    role: user.role,
-    token: generateToken(user._id),
+    _id: user._id, name: user.name, email: user.email, role: user.role,
+    token: generateToken(user._id, schoolId),
   });
 });
 
-// @desc   Login
+// @desc   Login — requires schoolCode to identify tenant
 // @route  POST /api/auth/login
 export const loginUser = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
-  const user = await User.findOne({ email });
+  const { email, password, schoolCode } = req.body;
 
-  if (user && (await user.matchPassword(password))) {
-    if (!user.isActive) {
-      res.status(403);
-      throw new Error('Account is disabled. Contact administrator.');
-    }
-    res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      avatar: user.avatar,
-      token: generateToken(user._id),
-    });
-  } else {
-    res.status(401);
-    throw new Error('Invalid email or password');
+  // Resolve tenant by subdomain
+  const school = await School.findOne({ subdomain: schoolCode?.toLowerCase(), isActive: true });
+  if (!school) { res.status(404); throw new Error('School not found. Check your school code.'); }
+
+  // Trial expiry check
+  if (school.plan === 'trial' && school.trialEndsAt < new Date()) {
+    res.status(403); throw new Error('Trial period expired — contact support to continue.');
   }
+
+  // Find user within that school
+  const user = await User.findOne({ email: email?.toLowerCase(), schoolId: school._id });
+  if (!user || !(await user.matchPassword(password))) {
+    res.status(401); throw new Error('Invalid email or password');
+  }
+  if (!user.isActive) { res.status(403); throw new Error('Account is disabled. Contact administrator.'); }
+
+  res.json({
+    _id: user._id, name: user.name, email: user.email,
+    role: user.role, avatar: user.avatar,
+    schoolId: school._id, schoolCode: school.subdomain, schoolName: school.name,
+    token: generateToken(user._id, school._id),
+  });
 });
 
 // @desc   Get current user
@@ -67,26 +58,16 @@ export const getMe = asyncHandler(async (req, res) => {
   res.json(req.user);
 });
 
-// @desc   Update profile (name, phone, avatar only — use /change-password for password)
+// @desc   Update profile
 // @route  PUT /api/auth/me
 export const updateMe = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
-  if (!user) {
-    res.status(404);
-    throw new Error('User not found');
-  }
-  user.name = req.body.name || user.name;
-  user.phone = req.body.phone || user.phone;
+  if (!user) { res.status(404); throw new Error('User not found'); }
+  user.name   = req.body.name   || user.name;
+  user.phone  = req.body.phone  || user.phone;
   user.avatar = req.body.avatar || user.avatar;
-  // Password changes are intentionally not allowed here.
-  // Use PUT /api/auth/change-password which requires the current password.
   const updated = await user.save();
-  res.json({
-    _id: updated._id,
-    name: updated.name,
-    email: updated.email,
-    role: updated.role,
-  });
+  res.json({ _id: updated._id, name: updated.name, email: updated.email, role: updated.role });
 });
 
 // @desc   Change own password
@@ -105,9 +86,9 @@ export const changePassword = asyncHandler(async (req, res) => {
   res.json({ message: 'Password updated successfully' });
 });
 
-// @desc   List users (admin)
+// @desc   List users in current school
 // @route  GET /api/auth/users
-export const getUsers = asyncHandler(async (_req, res) => {
-  const users = await User.find().select('-password').sort({ createdAt: -1 });
+export const getUsers = asyncHandler(async (req, res) => {
+  const users = await User.find({ schoolId: req.user.schoolId }).select('-password').sort({ createdAt: -1 });
   res.json(users);
 });

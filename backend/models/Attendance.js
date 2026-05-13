@@ -14,9 +14,11 @@ const attendanceSchema = new mongoose.Schema(
     remarks: { type: String },
     markedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-attendanceSchema.index({ student: 1, date: 1 }, { unique: true });
+// One record per student per day per school (cross-school uniqueness is meaningless)
+attendanceSchema.index({ schoolId: 1, student: 1, date: 1 }, { unique: true });
+attendanceSchema.index({ schoolId: 1, date: -1, class: 1 });
 
 export default mongoose.model('Attendance', attendanceSchema);

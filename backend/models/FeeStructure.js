@@ -25,7 +25,7 @@ const feeStructureSchema = new Schema({
   lastModifiedBy: { type: Schema.Types.ObjectId, ref: 'User' },
 }, { timestamps: true });
 
-// One structure per class per academic year
-feeStructureSchema.index({ class: 1, academicYear: 1 }, { unique: true });
+// One structure per class per academic year per school
+feeStructureSchema.index({ schoolId: 1, class: 1, academicYear: 1 }, { unique: true });
 
 export default mongoose.model('FeeStructure', feeStructureSchema);

@@ -12,8 +12,9 @@ const payrollLineSchema = new mongoose.Schema({
 }, { _id: true });
 
 const payrollSchema = new mongoose.Schema({
-  payrollNumber: { type: String, required: true, unique: true },
-  month:         { type: String, required: true },  // e.g. "Baishakh 2082"
+  // unique: true removed — uniqueness is per-school via compound index below
+  payrollNumber: { type: String, required: true },
+  month:         { type: String, required: true },
   academicYear:  { type: String, required: true },
   status: {
     type: String,
@@ -32,7 +33,8 @@ const payrollSchema = new mongoose.Schema({
   createdBy:           { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 }, { timestamps: true });
 
-payrollSchema.index({ academicYear: 1, month: 1 });
-payrollSchema.index({ status: 1 });
+payrollSchema.index({ schoolId: 1, payrollNumber: 1 }, { unique: true });
+payrollSchema.index({ schoolId: 1, academicYear: 1, month: 1 });
+payrollSchema.index({ schoolId: 1, status: 1 });
 
 export default mongoose.model('Payroll', payrollSchema);
