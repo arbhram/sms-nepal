@@ -130,7 +130,7 @@ export default function SuperAdminDashboard() {
     ])
       .then(([m, s]) => {
         setMetrics(m.data);
-        setSchools(s.data);
+        setSchools(s.data.schools ?? s.data);
       })
       .catch((err) => {
         if (err.response?.status === 401) {
