@@ -30,3 +30,19 @@ export const superAdminAuth = asyncHandler(async (req, res, next) => {
   req.superAdmin = admin;
   next();
 });
+
+/**
+ * Role-based permission guard.
+ * Place AFTER superAdminAuth in the middleware chain.
+ *
+ * Roles (highest → lowest):
+ *   'owner'   — full access
+ *   'admin'   — most actions, cannot manage other super admins
+ *   'support' — read-only + impersonation
+ */
+export const requireRole = (...allowedRoles) => (req, res, next) => {
+  if (!allowedRoles.includes(req.superAdmin.role)) {
+    return res.status(403).json({ message: 'Permission denied' });
+  }
+  next();
+};

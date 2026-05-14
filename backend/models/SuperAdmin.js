@@ -6,6 +6,7 @@ const superAdminSchema = new mongoose.Schema(
     name:     { type: String, required: true, trim: true },
     email:    { type: String, required: true, unique: true, lowercase: true, trim: true },
     password: { type: String, required: true, minlength: 8 },
+    role:     { type: String, enum: ['owner', 'admin', 'support'], default: 'owner' },
     isActive: { type: Boolean, default: true },
   },
   {
