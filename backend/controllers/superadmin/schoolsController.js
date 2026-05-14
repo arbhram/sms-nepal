@@ -3,8 +3,13 @@ import mongoose from 'mongoose';
 import School from '../../models/School.js';
 import User from '../../models/User.js';
 import Student from '../../models/Student.js';
+import Teacher from '../../models/Teacher.js';
 import { audit } from '../../utils/auditLogger.js';
 import { provisionSchool } from '../../services/schoolProvisioningService.js';
+
+// Fields the super admin may update on a school.
+// Excludes: subdomain, isActive (use suspend/activate), _id, createdAt, schoolId.
+const PATCHABLE = ['name', 'email', 'phone', 'address', 'plan', 'trialEndsAt', 'customDomain', 'timezone', 'currency'];
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -86,13 +91,66 @@ export const getSchoolById = asyncHandler(async (req, res) => {
 
   const sid = school._id;
 
-  const [userCount, studentCount, feesCollected] = await Promise.all([
+  const [userCount, studentCount, teacherCount, feesCollected, lastActiveUser] = await Promise.all([
     User.countDocuments({ schoolId: sid }).setOptions({ _skipTenant: true }),
     Student.countDocuments({ schoolId: sid }).setOptions({ _skipTenant: true }),
+    Teacher.countDocuments({ schoolId: sid }).setOptions({ _skipTenant: true }),
     getFeesCollected(sid),
+    User.findOne({ schoolId: sid, lastLogin: { $ne: null } })
+      .sort({ lastLogin: -1 })
+      .select('lastLogin name email')
+      .setOptions({ _skipTenant: true })
+      .lean(),
   ]);
 
-  res.json({ ...school, userCount, studentCount, feesCollected });
+  res.json({
+    ...school,
+    userCount,
+    studentCount,
+    teacherCount,
+    feesCollected,
+    lastLogin: lastActiveUser?.lastLogin ?? null,
+    lastLoginBy: lastActiveUser ? { name: lastActiveUser.name, email: lastActiveUser.email } : null,
+  });
+});
+
+// ── PATCH /api/superadmin/schools/:id ────────────────────────────────────────
+export const updateSchool = asyncHandler(async (req, res) => {
+  const school = await School.findById(req.params.id);
+  if (!school) { res.status(404); throw new Error('School not found'); }
+
+  const before = {};
+  const after  = {};
+
+  for (const field of PATCHABLE) {
+    if (req.body[field] === undefined) continue;
+    const incoming = field === 'trialEndsAt' ? new Date(req.body[field]) : req.body[field];
+    const current  = school[field];
+    // Only record and apply fields that actually changed
+    if (String(current) !== String(incoming)) {
+      before[field] = current;
+      after[field]  = incoming;
+      school[field] = incoming;
+    }
+  }
+
+  if (Object.keys(after).length === 0) {
+    return res.json({ message: 'No changes', school });
+  }
+
+  await school.save();
+
+  audit({
+    req,
+    action:     'school.updated',
+    targetType: 'school',
+    targetId:   school._id,
+    targetName: school.name,
+    schoolId:   school._id,
+    changes:    { before, after },
+  });
+
+  res.json(school);
 });
 
 // ── POST /api/superadmin/schools ─────────────────────────────────────────────

@@ -52,6 +52,9 @@ export const loginUser = asyncHandler(async (req, res) => {
   }
   if (!user.isActive) { res.status(403); throw new Error('Account is disabled. Contact administrator.'); }
 
+  user.lastLogin = new Date();
+  await user.save();
+
   res.json({
     _id: user._id, name: user.name, email: user.email,
     role: user.role, avatar: user.avatar,
