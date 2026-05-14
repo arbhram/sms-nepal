@@ -34,28 +34,16 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-const ROOT_DOMAIN = (process.env.ROOT_DOMAIN || 'myschoolsaas.com').toLowerCase();
 const IS_DEV = process.env.NODE_ENV !== 'production';
 
-function isTrustedOrigin(origin) {
-  if (!origin) return true; // server-to-server or same-origin
-  try {
-    const { hostname } = new URL(origin);
-    if (IS_DEV && (hostname === 'localhost' || hostname.endsWith('.localhost'))) return true;
-    return hostname === ROOT_DOMAIN || hostname.endsWith(`.${ROOT_DOMAIN}`);
-  } catch {
-    return false;
-  }
-}
-
 app.use(cors({
-  origin: (origin, callback) => {
-    if (isTrustedOrigin(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'https://sms-nepal.vercel.app',
+    'https://wephas.com',
+    'https://www.wephas.com',
+  ],
   credentials: true,
 }));
 app.use(express.json({ limit: '10mb' }));
