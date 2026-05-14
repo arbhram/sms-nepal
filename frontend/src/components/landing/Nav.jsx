@@ -74,7 +74,7 @@ export default function Nav() {
               </button>
             ) : (
               <>
-                <Link to="/find-school" className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
+                <Link to="/login" className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
                   Log in
                 </Link>
                 <Link
@@ -120,7 +120,7 @@ export default function Nav() {
                 </button>
               ) : (
                 <>
-                  <Link to="/find-school" onClick={() => setMenuOpen(false)}
+                  <Link to="/login" onClick={() => setMenuOpen(false)}
                     className="text-slate-600 hover:text-slate-900 text-sm font-medium py-1">
                     Log in
                   </Link>

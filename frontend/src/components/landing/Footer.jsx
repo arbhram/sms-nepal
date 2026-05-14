@@ -8,7 +8,7 @@ const LINKS = {
     { label: 'Request Demo', href: '/request-demo', scroll: false },
   ],
   Account: [
-    { label: 'Log in',       href: '/find-school',  scroll: false },
+    { label: 'Log in',       href: '/login',  scroll: false },
   ],
   System: [
     { label: 'Super Admin',  href: '/superadmin/login', scroll: false },

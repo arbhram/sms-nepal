@@ -39,7 +39,7 @@ export default function FinalCTA() {
                 Request a Demo <ArrowRight size={16} />
               </Link>
               <Link
-                to="/find-school"
+                to="/login"
                 className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl border border-slate-200 text-slate-700 font-medium text-sm hover:border-slate-300 hover:bg-slate-50 transition-all active:scale-95"
               >
                 Log in to your school
