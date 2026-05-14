@@ -21,7 +21,7 @@ export default function Login() {
   const prefilledSchool = searchParams.get('school') || 'myschool';
 
   const formik = useFormik({
-    initialValues: { schoolCode: prefilledSchool, email: 'admin@sms.np', password: 'admin123' },
+    initialValues: { schoolCode: prefilledSchool, email: '', password: '' },
     validationSchema: Yup.object({
       schoolCode: needsSchoolCode ? Yup.string().required('Required') : Yup.string(),
       email: Yup.string().email('Invalid email').required('Required'),
@@ -279,19 +279,6 @@ export default function Login() {
               </button>
             </form>
 
-            {/* Demo credentials */}
-            <div className="mt-8 pt-6 border-t border-slate-100">
-              <p className="text-[10px] uppercase tracking-widest text-slate-400 text-center mb-2.5">
-                Demo Credentials
-              </p>
-              <button
-                type="button"
-                onClick={() => formik.setValues({ schoolCode: 'myschool', email: 'admin@sms.np', password: 'admin123' })}
-                className="w-full text-[11px] font-mono text-brand-600 hover:text-brand-700 transition py-2 rounded-full bg-brand-50 hover:bg-brand-100 border border-brand-100"
-              >
-                {needsSchoolCode ? 'myschool · ' : ''}admin@sms.np · admin123
-              </button>
-            </div>
 
           </div>
         </div>

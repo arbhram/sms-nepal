@@ -4,17 +4,10 @@ import { ArrowLeft, ArrowRight, School } from 'lucide-react';
 import Nav from '../components/landing/Nav.jsx';
 
 function redirectToSchool(subdomain) {
-  const hostname = window.location.hostname;
-  const isLocal  = hostname === 'localhost' || hostname === '127.0.0.1';
-
-  if (isLocal) {
-    // On local dev, stay on same host and pass school code as query param
-    window.location.href = `/login?school=${encodeURIComponent(subdomain)}`;
-  } else {
-    // On production derive root domain: wephas.com → saraswati.wephas.com
-    const rootDomain = hostname.split('.').slice(-2).join('.');
-    window.location.href = `https://${subdomain}.${rootDomain}/login`;
-  }
+  // Pass school code as a query param — works on bare domains without wildcard DNS.
+  // When wildcard *.wephas.com DNS is configured, schools with direct subdomain URLs
+  // (saraswati.wephas.com) get the tenantResolver auto-detection instead.
+  window.location.href = `/login?school=${encodeURIComponent(subdomain)}`;
 }
 
 export default function FindSchoolPage() {
@@ -51,17 +44,14 @@ export default function FindSchoolPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">School code</label>
-                <div className="flex items-center rounded-xl border border-slate-200 focus-within:border-[#0ABAB5] focus-within:ring-2 focus-within:ring-[#0ABAB5]/20 transition-all overflow-hidden bg-slate-50">
-                  <input
-                    type="text"
-                    value={subdomain}
-                    onChange={(e) => { setSubdomain(e.target.value); setError(''); }}
-                    placeholder="e.g. saraswati"
-                    autoFocus
-                    className="flex-1 px-4 py-3 bg-transparent text-sm text-slate-900 placeholder-slate-400 outline-none"
-                  />
-                  <span className="pr-4 text-sm text-slate-400 select-none whitespace-nowrap">.wephas.com</span>
-                </div>
+                <input
+                  type="text"
+                  value={subdomain}
+                  onChange={(e) => { setSubdomain(e.target.value); setError(''); }}
+                  placeholder="e.g. saraswati"
+                  autoFocus
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-[#0ABAB5] focus:ring-2 focus:ring-[#0ABAB5]/20 bg-slate-50 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all"
+                />
                 {error && <p className="mt-1.5 text-xs text-red-500">{error}</p>}
               </div>
 
