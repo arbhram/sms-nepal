@@ -1,6 +1,8 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext.jsx';
 import { SchoolProvider } from './context/SchoolContext.jsx';
+import LandingPage from './pages/LandingPage.jsx';
+import RequestDemoPage from './pages/RequestDemoPage.jsx';
 import SuperAdminLogin from './pages/superadmin/SuperAdminLogin.jsx';
 import SuperAdminDashboard from './pages/superadmin/SuperAdminDashboard.jsx';
 import Layout from './components/layout/Layout.jsx';
@@ -112,6 +114,8 @@ export default function App() {
   return (
     <SchoolProvider>
     <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/request-demo" element={<RequestDemoPage />} />
       <Route path="/login" element={<Login />} />
 
       {/* Student Portal */}
@@ -152,7 +156,6 @@ export default function App() {
 
       {/* Admin Portal */}
       <Route path="/" element={<ProtectedAdmin><Layout /></ProtectedAdmin>}>
-        <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="students" element={<StudentList />} />
         <Route path="students/new" element={<StudentForm />} />
