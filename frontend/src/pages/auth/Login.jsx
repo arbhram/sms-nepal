@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import toast from 'react-hot-toast';
@@ -11,13 +11,17 @@ export default function Login() {
   const { login } = useAuth();
   const { school } = useSchool();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [showPass, setShowPass] = useState(false);
 
   // schoolCode input is only needed when there's no subdomain (bare localhost dev)
   const needsSchoolCode = !school;
 
+  // Pre-fill school code from ?school= query param (set by FindSchoolPage on localhost)
+  const prefilledSchool = searchParams.get('school') || 'myschool';
+
   const formik = useFormik({
-    initialValues: { schoolCode: 'myschool', email: 'admin@sms.np', password: 'admin123' },
+    initialValues: { schoolCode: prefilledSchool, email: 'admin@sms.np', password: 'admin123' },
     validationSchema: Yup.object({
       schoolCode: needsSchoolCode ? Yup.string().required('Required') : Yup.string(),
       email: Yup.string().email('Invalid email').required('Required'),

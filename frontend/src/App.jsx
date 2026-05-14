@@ -3,6 +3,7 @@ import { useAuth } from './context/AuthContext.jsx';
 import { SchoolProvider } from './context/SchoolContext.jsx';
 import LandingPage from './pages/LandingPage.jsx';
 import RequestDemoPage from './pages/RequestDemoPage.jsx';
+import FindSchoolPage from './pages/FindSchoolPage.jsx';
 import SuperAdminLogin from './pages/superadmin/SuperAdminLogin.jsx';
 import SuperAdminDashboard from './pages/superadmin/SuperAdminDashboard.jsx';
 import Layout from './components/layout/Layout.jsx';
@@ -116,6 +117,7 @@ export default function App() {
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/request-demo" element={<RequestDemoPage />} />
+      <Route path="/find-school" element={<FindSchoolPage />} />
       <Route path="/login" element={<Login />} />
 
       {/* Student Portal */}
