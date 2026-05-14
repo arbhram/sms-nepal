@@ -72,10 +72,12 @@ export const tenantResolver = asyncHandler(async (req, res, next) => {
   }
 
   // Not a subdomain of ROOT_DOMAIN — check for custom domain
-  const isApex = hostname === ROOT_DOMAIN;
-  const isLocalhost = IS_DEV && (hostname === 'localhost' || hostname === '127.0.0.1');
+  const isApex = hostname === ROOT_DOMAIN || hostname === `www.${ROOT_DOMAIN}`;
+  const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+  // Deployment-platform hosts (Render, Vercel) are never tenant custom domains
+  const isPlatformHost = hostname.endsWith('.onrender.com') || hostname.endsWith('.vercel.app');
 
-  if (!isApex && !isLocalhost) {
+  if (!isApex && !isLocalhost && !isPlatformHost) {
     // Looks like a custom domain (kathmandu-academy.edu.np)
     const school = await School.findOne({
       customDomain: hostname,
