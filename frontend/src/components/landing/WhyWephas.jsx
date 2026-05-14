@@ -14,15 +14,13 @@ const COMPARISON = [
 ];
 
 export default function WhyWephas() {
-  const headRef = useRef(null);
+  const headRef    = useRef(null);
   const headInView = useInView(headRef, { once: true, margin: '-80px' });
-  const tableRef = useRef(null);
+  const tableRef   = useRef(null);
   const tableInView = useInView(tableRef, { once: true, margin: '-80px' });
 
   return (
-    <section className="py-24 lg:py-32 relative">
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-
+    <section className="py-24 lg:py-32 bg-slate-50">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           ref={headRef}
@@ -31,13 +29,13 @@ export default function WhyWephas() {
           transition={{ duration: 0.5 }}
           className="text-center mb-16"
         >
-          <span className="inline-block px-3 py-1 rounded-full bg-[#0ABAB5]/10 border border-[#0ABAB5]/30 text-[#0ABAB5] text-xs font-semibold tracking-wide mb-4">
+          <span className="inline-block px-3 py-1 rounded-full bg-[#0ABAB5]/10 border border-[#0ABAB5]/20 text-[#0ABAB5] text-xs font-semibold tracking-wide mb-4">
             Why Wephas
           </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4">
             Ditch the spreadsheets for good
           </h2>
-          <p className="text-slate-400 max-w-lg mx-auto">
+          <p className="text-slate-500 max-w-lg mx-auto">
             See how Wephas compares to the way most Nepali schools manage things today.
           </p>
         </motion.div>
@@ -47,18 +45,18 @@ export default function WhyWephas() {
           initial={{ opacity: 0, y: 24 }}
           animate={tableInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5 }}
-          className="rounded-2xl border border-white/10 overflow-hidden"
+          className="rounded-2xl border border-slate-200 overflow-hidden bg-white shadow-sm"
         >
-          {/* Table header */}
-          <div className="grid grid-cols-3 bg-white/5 border-b border-white/10">
-            <div className="py-4 px-6 text-sm font-semibold text-slate-300">Feature</div>
-            <div className="py-4 px-6 text-sm font-semibold text-[#0ABAB5] text-center border-l border-white/10 bg-[#0ABAB5]/5">
+          {/* Header */}
+          <div className="grid grid-cols-3 bg-slate-50 border-b border-slate-200">
+            <div className="py-4 px-6 text-sm font-semibold text-slate-500">Feature</div>
+            <div className="py-4 px-6 text-sm font-semibold text-[#0ABAB5] text-center border-l border-slate-200 bg-[#0ABAB5]/5">
               <div className="flex items-center justify-center gap-2">
                 <img src="/wephas-icon.svg" alt="" className="w-5 h-5" />
                 Wephas
               </div>
             </div>
-            <div className="py-4 px-6 text-sm font-semibold text-slate-500 text-center border-l border-white/10">
+            <div className="py-4 px-6 text-sm font-semibold text-slate-400 text-center border-l border-slate-200">
               Spreadsheets / manual
             </div>
           </div>
@@ -66,18 +64,18 @@ export default function WhyWephas() {
           {COMPARISON.map((row, i) => (
             <div
               key={row.feature}
-              className={`grid grid-cols-3 border-b border-white/[0.06] last:border-0 ${i % 2 === 0 ? '' : 'bg-white/[0.02]'}`}
+              className={`grid grid-cols-3 border-b border-slate-100 last:border-0 ${i % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'}`}
             >
-              <div className="py-3.5 px-6 text-sm text-slate-300 flex items-center">{row.feature}</div>
-              <div className="py-3.5 px-6 flex items-center justify-center border-l border-white/[0.06] bg-[#0ABAB5]/[0.03]">
+              <div className="py-3.5 px-6 text-sm text-slate-700 flex items-center">{row.feature}</div>
+              <div className="py-3.5 px-6 flex items-center justify-center border-l border-slate-100 bg-[#0ABAB5]/[0.02]">
                 {row.wephas
                   ? <Check size={16} className="text-[#0ABAB5]" />
-                  : <X size={16} className="text-slate-600" />}
+                  : <X size={16} className="text-slate-300" />}
               </div>
-              <div className="py-3.5 px-6 flex items-center justify-center border-l border-white/[0.06]">
+              <div className="py-3.5 px-6 flex items-center justify-center border-l border-slate-100">
                 {row.old
                   ? <Check size={16} className="text-slate-400" />
-                  : <X size={16} className="text-red-500/60" />}
+                  : <X size={16} className="text-red-400" />}
               </div>
             </div>
           ))}

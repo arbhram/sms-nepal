@@ -61,12 +61,12 @@ function PlanCard({ plan, index }) {
       transition={{ duration: 0.5, delay: index * 0.1 }}
       className={`relative rounded-2xl border p-7 flex flex-col gap-6 ${
         plan.highlight
-          ? 'border-[#0ABAB5]/50 bg-[#0ABAB5]/5 ring-1 ring-[#0ABAB5]/20'
-          : 'border-white/10 bg-white/[0.03]'
+          ? 'border-[#0ABAB5] bg-white shadow-xl shadow-[#0ABAB5]/10 ring-1 ring-[#0ABAB5]/20'
+          : 'border-slate-200 bg-white shadow-sm'
       }`}
     >
       {plan.highlight && (
-        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-[#0ABAB5] text-white text-xs font-bold whitespace-nowrap">
+        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-[#0ABAB5] text-white text-xs font-bold whitespace-nowrap shadow-md">
           Most Popular
         </div>
       )}
@@ -74,15 +74,15 @@ function PlanCard({ plan, index }) {
       <div>
         <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">{plan.name}</p>
         <div className="flex items-baseline gap-1.5 mb-2">
-          <span className="text-4xl font-extrabold text-white">{plan.price}</span>
-          <span className="text-slate-500 text-sm">{plan.period}</span>
+          <span className="text-4xl font-extrabold text-slate-900">{plan.price}</span>
+          <span className="text-slate-400 text-sm">{plan.period}</span>
         </div>
-        <p className="text-slate-400 text-sm">{plan.desc}</p>
+        <p className="text-slate-500 text-sm">{plan.desc}</p>
       </div>
 
       <ul className="space-y-2.5 flex-1">
         {plan.features.map((f) => (
-          <li key={f} className="flex items-center gap-2.5 text-sm text-slate-300">
+          <li key={f} className="flex items-center gap-2.5 text-sm text-slate-600">
             <Check size={14} className="text-[#0ABAB5] flex-shrink-0" />
             {f}
           </li>
@@ -93,8 +93,8 @@ function PlanCard({ plan, index }) {
         to={plan.cta.to}
         className={`block text-center px-5 py-3 rounded-xl font-semibold text-sm transition-all active:scale-95 ${
           plan.highlight
-            ? 'bg-[#0ABAB5] text-white hover:bg-[#09a8a3] shadow-lg shadow-[#0ABAB5]/25'
-            : 'border border-white/20 text-white hover:border-white/40 hover:bg-white/5'
+            ? 'bg-[#0ABAB5] text-white hover:bg-[#09a8a3] shadow-md shadow-[#0ABAB5]/25'
+            : 'border border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50'
         }`}
       >
         {plan.cta.label}
@@ -108,9 +108,7 @@ export default function Pricing() {
   const headInView = useInView(headRef, { once: true, margin: '-80px' });
 
   return (
-    <section id="pricing" className="py-24 lg:py-32 relative">
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-
+    <section id="pricing" className="py-24 lg:py-32 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           ref={headRef}
@@ -119,13 +117,13 @@ export default function Pricing() {
           transition={{ duration: 0.5 }}
           className="text-center mb-16"
         >
-          <span className="inline-block px-3 py-1 rounded-full bg-[#0ABAB5]/10 border border-[#0ABAB5]/30 text-[#0ABAB5] text-xs font-semibold tracking-wide mb-4">
+          <span className="inline-block px-3 py-1 rounded-full bg-[#0ABAB5]/10 border border-[#0ABAB5]/20 text-[#0ABAB5] text-xs font-semibold tracking-wide mb-4">
             Pricing
           </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4">
             Simple, transparent plans
           </h2>
-          <p className="text-slate-400 max-w-xl mx-auto">
+          <p className="text-slate-500 max-w-xl mx-auto">
             Start free. Upgrade when you're ready. No hidden fees.
           </p>
         </motion.div>

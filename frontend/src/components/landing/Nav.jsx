@@ -39,7 +39,7 @@ export default function Nav() {
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      scrolled ? 'bg-[#0A0E1A]/95 backdrop-blur-md shadow-lg shadow-black/30' : 'bg-transparent'
+      scrolled ? 'bg-white/95 backdrop-blur-md shadow-sm border-b border-slate-100' : 'bg-white'
     }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
@@ -47,7 +47,7 @@ export default function Nav() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 select-none">
             <img src="/wephas-icon.svg" alt="Wephas" className="w-8 h-8" />
-            <span className="font-bold text-white text-lg tracking-tight">wephas</span>
+            <span className="font-bold text-slate-900 text-lg tracking-tight">wephas</span>
           </Link>
 
           {/* Desktop links */}
@@ -56,7 +56,7 @@ export default function Nav() {
               <button
                 key={href}
                 onClick={() => scrollTo(href)}
-                className="text-slate-300 hover:text-white text-sm font-medium transition-colors"
+                className="text-slate-500 hover:text-slate-900 text-sm font-medium transition-colors"
               >
                 {label}
               </button>
@@ -74,12 +74,12 @@ export default function Nav() {
               </button>
             ) : (
               <>
-                <Link to="/login" className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors">
+                <Link to="/login" className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
                   Log in
                 </Link>
                 <Link
                   to="/request-demo"
-                  className="px-4 py-2 text-sm font-semibold text-white bg-[#0ABAB5] rounded-lg hover:bg-[#09a8a3] transition-colors shadow-md shadow-[#0ABAB5]/20"
+                  className="px-4 py-2 text-sm font-semibold text-white bg-[#0ABAB5] rounded-lg hover:bg-[#09a8a3] transition-colors shadow-sm shadow-[#0ABAB5]/20"
                 >
                   Request Demo
                 </Link>
@@ -90,7 +90,7 @@ export default function Nav() {
           {/* Mobile hamburger */}
           <button
             onClick={() => setMenuOpen((o) => !o)}
-            className="md:hidden text-slate-300 hover:text-white transition-colors"
+            className="md:hidden text-slate-600 hover:text-slate-900 transition-colors"
           >
             {menuOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
@@ -99,18 +99,18 @@ export default function Nav() {
 
       {/* Mobile drawer */}
       {menuOpen && (
-        <div className="md:hidden bg-[#0D1220]/98 backdrop-blur-md border-t border-white/10">
+        <div className="md:hidden bg-white border-t border-slate-100">
           <div className="px-4 py-4 flex flex-col gap-4">
             {NAV_LINKS.map(({ label, href }) => (
               <button
                 key={href}
                 onClick={() => scrollTo(href)}
-                className="text-left text-slate-300 hover:text-white text-sm font-medium py-1 transition-colors"
+                className="text-left text-slate-600 hover:text-slate-900 text-sm font-medium py-1 transition-colors"
               >
                 {label}
               </button>
             ))}
-            <div className="pt-2 border-t border-white/10 flex flex-col gap-2">
+            <div className="pt-2 border-t border-slate-100 flex flex-col gap-2">
               {dest ? (
                 <button
                   onClick={() => { setMenuOpen(false); navigate(dest); }}
@@ -121,7 +121,7 @@ export default function Nav() {
               ) : (
                 <>
                   <Link to="/login" onClick={() => setMenuOpen(false)}
-                    className="text-slate-300 hover:text-white text-sm font-medium py-1">
+                    className="text-slate-600 hover:text-slate-900 text-sm font-medium py-1">
                     Log in
                   </Link>
                   <Link to="/request-demo" onClick={() => setMenuOpen(false)}

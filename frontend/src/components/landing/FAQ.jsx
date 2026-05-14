@@ -35,14 +35,14 @@ const ITEMS = [
 
 function Item({ q, a, open, onToggle }) {
   return (
-    <div className="border-b border-white/[0.08] last:border-0">
+    <div className="border-b border-slate-100 last:border-0">
       <button
         onClick={onToggle}
         className="w-full flex items-center justify-between gap-4 py-5 text-left"
       >
-        <span className={`font-medium text-sm transition-colors ${open ? 'text-white' : 'text-slate-300'}`}>{q}</span>
+        <span className={`font-medium text-sm transition-colors ${open ? 'text-slate-900' : 'text-slate-700'}`}>{q}</span>
         <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center border transition-all ${
-          open ? 'border-[#0ABAB5] bg-[#0ABAB5]/10 text-[#0ABAB5]' : 'border-white/20 text-slate-400'
+          open ? 'border-[#0ABAB5] bg-[#0ABAB5]/10 text-[#0ABAB5]' : 'border-slate-200 text-slate-400'
         }`}>
           {open ? <Minus size={12} /> : <Plus size={12} />}
         </div>
@@ -56,7 +56,7 @@ function Item({ q, a, open, onToggle }) {
             transition={{ duration: 0.25, ease: 'easeInOut' }}
             className="overflow-hidden"
           >
-            <p className="pb-5 text-sm text-slate-400 leading-relaxed">{a}</p>
+            <p className="pb-5 text-sm text-slate-500 leading-relaxed">{a}</p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -66,13 +66,11 @@ function Item({ q, a, open, onToggle }) {
 
 export default function FAQ() {
   const [open, setOpen] = useState(0);
-  const headRef   = useRef(null);
+  const headRef    = useRef(null);
   const headInView = useInView(headRef, { once: true, margin: '-80px' });
 
   return (
-    <section id="faq" className="py-24 lg:py-32 relative">
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-
+    <section id="faq" className="py-24 lg:py-32 bg-slate-50">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           ref={headRef}
@@ -81,15 +79,15 @@ export default function FAQ() {
           transition={{ duration: 0.5 }}
           className="text-center mb-12"
         >
-          <span className="inline-block px-3 py-1 rounded-full bg-[#0ABAB5]/10 border border-[#0ABAB5]/30 text-[#0ABAB5] text-xs font-semibold tracking-wide mb-4">
+          <span className="inline-block px-3 py-1 rounded-full bg-[#0ABAB5]/10 border border-[#0ABAB5]/20 text-[#0ABAB5] text-xs font-semibold tracking-wide mb-4">
             FAQ
           </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4">
             Questions? We have answers.
           </h2>
         </motion.div>
 
-        <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-6 sm:px-8">
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm px-6 sm:px-8">
           {ITEMS.map((item, i) => (
             <Item
               key={item.q}

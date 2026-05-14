@@ -36,15 +36,15 @@ function Step({ Icon, number, title, desc, index }) {
       className="flex flex-col items-center text-center"
     >
       <div className="relative mb-6">
-        <div className="w-20 h-20 rounded-full bg-[#0ABAB5]/10 border border-[#0ABAB5]/30 flex items-center justify-center">
+        <div className="w-20 h-20 rounded-full bg-[#0ABAB5]/10 border-2 border-[#0ABAB5]/20 flex items-center justify-center">
           <Icon size={28} className="text-[#0ABAB5]" />
         </div>
-        <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-[#0A0E1A] border border-[#0ABAB5]/50 flex items-center justify-center">
+        <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-white border-2 border-[#0ABAB5]/40 flex items-center justify-center shadow-sm">
           <span className="text-[10px] font-bold text-[#0ABAB5]">{number}</span>
         </div>
       </div>
-      <h3 className="font-bold text-white text-lg mb-3">{title}</h3>
-      <p className="text-slate-400 text-sm leading-relaxed max-w-xs">{desc}</p>
+      <h3 className="font-bold text-slate-900 text-lg mb-3">{title}</h3>
+      <p className="text-slate-500 text-sm leading-relaxed max-w-xs">{desc}</p>
     </motion.div>
   );
 }
@@ -54,9 +54,7 @@ export default function HowItWorks() {
   const headInView = useInView(headRef, { once: true, margin: '-80px' });
 
   return (
-    <section id="how-it-works" className="py-24 lg:py-32 relative">
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-
+    <section id="how-it-works" className="py-24 lg:py-32 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           ref={headRef}
@@ -65,20 +63,20 @@ export default function HowItWorks() {
           transition={{ duration: 0.5 }}
           className="text-center mb-16"
         >
-          <span className="inline-block px-3 py-1 rounded-full bg-[#0ABAB5]/10 border border-[#0ABAB5]/30 text-[#0ABAB5] text-xs font-semibold tracking-wide mb-4">
+          <span className="inline-block px-3 py-1 rounded-full bg-[#0ABAB5]/10 border border-[#0ABAB5]/20 text-[#0ABAB5] text-xs font-semibold tracking-wide mb-4">
             Getting started
           </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4">
             Up and running in a day
           </h2>
-          <p className="text-slate-400 max-w-xl mx-auto">
+          <p className="text-slate-500 max-w-xl mx-auto">
             No servers to set up, no software to install. We handle the technical side so you focus on your school.
           </p>
         </motion.div>
 
         <div className="grid md:grid-cols-3 gap-12 relative">
-          {/* Connector line (desktop) */}
-          <div className="hidden md:block absolute top-10 left-[16.66%] right-[16.66%] h-px bg-gradient-to-r from-[#0ABAB5]/30 via-[#0ABAB5]/60 to-[#0ABAB5]/30" />
+          {/* Connector line */}
+          <div className="hidden md:block absolute top-10 left-[16.66%] right-[16.66%] h-px bg-gradient-to-r from-[#0ABAB5]/20 via-[#0ABAB5]/50 to-[#0ABAB5]/20" />
           {STEPS.map((step, i) => (
             <Step key={step.number} {...step} index={i} />
           ))}
