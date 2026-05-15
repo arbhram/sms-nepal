@@ -4,7 +4,7 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import toast from 'react-hot-toast';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
-import axios from 'axios';
+import api from '../../api/axios.js';
 
 export default function SuperAdminLogin() {
   const navigate = useNavigate();
@@ -18,7 +18,7 @@ export default function SuperAdminLogin() {
     }),
     onSubmit: async (values, { setSubmitting }) => {
       try {
-        const { data } = await axios.post('/api/superadmin/login', values);
+        const { data } = await api.post('/superadmin/login', values);
         localStorage.setItem('superAdminToken', data.token);
         localStorage.setItem('superAdminUser', JSON.stringify({ _id: data._id, name: data.name, email: data.email }));
         toast.success(`Welcome, ${data.name}`);

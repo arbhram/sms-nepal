@@ -1,12 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../api/axios.js';
 import toast from 'react-hot-toast';
-
-function superAdminApi() {
-  const token = localStorage.getItem('superAdminToken');
-  return axios.create({ headers: { Authorization: `Bearer ${token}` } });
-}
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 function PlanBadge({ plan }) {
@@ -43,7 +38,7 @@ function EditSchoolModal({ school, onClose, onSaved }) {
     e.preventDefault();
     setSaving(true);
     try {
-      const { data } = await superAdminApi().patch(`/api/superadmin/schools/${school._id}`, form);
+      const { data } = await api.patch(`/superadmin/schools/${school._id}`, form);
       toast.success('School updated');
       onSaved(data);
       onClose();
@@ -122,8 +117,8 @@ function ResetPasswordModal({ schoolId, user, onClose }) {
   const handleReset = async () => {
     setLoading(true);
     try {
-      const { data } = await superAdminApi().post(
-        `/api/superadmin/schools/${schoolId}/users/${user._id}/reset-password`,
+      const { data } = await api.post(
+        `/superadmin/schools/${schoolId}/users/${user._id}/reset-password`,
         { reason },
       );
       setTempPassword(data.tempPassword);
@@ -260,7 +255,7 @@ function BrandingTab({ school, onSchoolUpdated }) {
     e.preventDefault();
     setSaving(true);
     try {
-      const { data } = await superAdminApi().patch(`/api/superadmin/schools/${school._id}`, {
+      const { data } = await api.patch(`/superadmin/schools/${school._id}`, {
         primaryColor, secondaryColor,
       });
       toast.success('Colors saved');
@@ -279,7 +274,7 @@ function BrandingTab({ school, onSchoolUpdated }) {
     try {
       const fd = new FormData();
       fd.append('logo', file);
-      const { data } = await superAdminApi().post(`/api/superadmin/schools/${school._id}/logo`, fd, {
+      const { data } = await api.post(`/superadmin/schools/${school._id}/logo`, fd, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       toast.success('Logo updated');
@@ -365,7 +360,7 @@ function UsersTab({ schoolId }) {
       const params = new URLSearchParams({ page: pg, limit: LIMIT });
       if (search) params.set('search', search);
       if (role)   params.set('role', role);
-      const { data } = await superAdminApi().get(`/api/superadmin/schools/${schoolId}/users?${params}`);
+      const { data } = await api.get(`/superadmin/schools/${schoolId}/users?${params}`);
       setUsers(data.users ?? data);
       setTotal(data.total ?? (data.users ?? data).length);
       setPage(pg);
@@ -381,8 +376,8 @@ function UsersTab({ schoolId }) {
 
   const handleToggleActive = async (u) => {
     try {
-      const { data } = await superAdminApi().patch(
-        `/api/superadmin/schools/${schoolId}/users/${u._id}`,
+      const { data } = await api.patch(
+        `/superadmin/schools/${schoolId}/users/${u._id}`,
         { isActive: !u.isActive },
       );
       setUsers((prev) => prev.map((x) => x._id === u._id ? { ...x, isActive: data.user.isActive } : x));
@@ -505,7 +500,7 @@ function ActivityTab({ schoolId }) {
     setLoading(true);
     try {
       const params = new URLSearchParams({ schoolId, page: pg, limit: LIMIT });
-      const { data } = await superAdminApi().get(`/api/superadmin/audit-log?${params}`);
+      const { data } = await api.get(`/superadmin/audit-log?${params}`);
       setLogs(data.logs);
       setTotal(data.total);
       setPage(pg);
@@ -578,7 +573,7 @@ export default function SchoolDetailPage() {
   const [showEdit, setShowEdit] = useState(false);
 
   useEffect(() => {
-    superAdminApi().get(`/api/superadmin/schools/${id}`)
+    api.get(`/superadmin/schools/${id}`)
       .then(({ data }) => setSchool(data))
       .catch((err) => {
         if (err.response?.status === 401) navigate('/superadmin/login');

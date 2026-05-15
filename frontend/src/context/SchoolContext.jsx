@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../api/axios.js';
 
 const SchoolContext = createContext(null);
 
@@ -8,8 +8,8 @@ export function SchoolProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios
-      .get('/api/school/current')
+    api
+      .get('/school/current')
       .then((res) => {
         // Only accept a real school object — guards against Vercel SPA HTML fallback
         const d = res.data;

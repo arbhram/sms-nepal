@@ -1,12 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../api/axios.js';
 import toast from 'react-hot-toast';
-
-function superAdminApi() {
-  const token = localStorage.getItem('superAdminToken');
-  return axios.create({ headers: { Authorization: `Bearer ${token}` } });
-}
 
 // ── Create School Modal ───────────────────────────────────────────────────────
 const EMPTY_FORM = {
@@ -29,7 +24,7 @@ function CreateSchoolModal({ onClose, onCreated }) {
     e.preventDefault();
     setSaving(true);
     try {
-      const { data } = await superAdminApi().post('/api/superadmin/schools', form);
+      const { data } = await api.post('/superadmin/schools', form);
       toast.success(`School "${data.name}" created`);
       onCreated(data);
       onClose();
@@ -116,7 +111,7 @@ function SuspendModal({ school, onClose, onDone }) {
     e.preventDefault();
     setSaving(true);
     try {
-      await superAdminApi().post(`/api/superadmin/schools/${school._id}/suspend`, { reason });
+      await api.post(`/superadmin/schools/${school._id}/suspend`, { reason });
       toast.success(`"${school.name}" suspended`);
       onDone(school._id, false);
       onClose();
@@ -163,7 +158,7 @@ function ExtendTrialModal({ school, onClose, onDone }) {
     e.preventDefault();
     setSaving(true);
     try {
-      const { data } = await superAdminApi().post(`/api/superadmin/schools/${school._id}/extend-trial`, { days: Number(days) });
+      const { data } = await api.post(`/superadmin/schools/${school._id}/extend-trial`, { days: Number(days) });
       toast.success(`Trial extended by ${days} days`);
       onDone(school._id, data.trialEndsAt);
       onClose();
@@ -243,7 +238,7 @@ export default function SuperAdminDashboard() {
       if (status) params.set('status', status);
       if (plan)   params.set('plan',   plan);
 
-      const { data } = await superAdminApi().get(`/api/superadmin/schools?${params}`);
+      const { data } = await api.get(`/superadmin/schools?${params}`);
       setSchools(data.schools ?? data);
       setTotal(data.total ?? (data.schools ?? data).length);
       setPage(pg);
@@ -256,10 +251,10 @@ export default function SuperAdminDashboard() {
   }, [search, status, plan, navigate]);
 
   useEffect(() => {
-    const api = superAdminApi();
+    const api = api;
     Promise.all([
-      api.get('/api/superadmin/metrics'),
-      api.get('/api/superadmin/schools?limit=10'),
+      api.get('/superadmin/metrics'),
+      api.get('/superadmin/schools?limit=10'),
     ])
       .then(([m, s]) => {
         setMetrics(m.data);
@@ -284,7 +279,7 @@ export default function SuperAdminDashboard() {
 
   const handleActivate = async (school) => {
     try {
-      await superAdminApi().post(`/api/superadmin/schools/${school._id}/activate`);
+      await api.post(`/superadmin/schools/${school._id}/activate`);
       setSchools((prev) => prev.map((s) => s._id === school._id ? { ...s, isActive: true } : s));
       toast.success(`"${school.name}" activated`);
     } catch (err) {

@@ -1,12 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../api/axios.js';
 import toast from 'react-hot-toast';
-
-function superAdminApi() {
-  const token = localStorage.getItem('superAdminToken');
-  return axios.create({ headers: { Authorization: `Bearer ${token}` } });
-}
 
 export default function AuditLogPage() {
   const navigate = useNavigate();
@@ -31,7 +26,7 @@ export default function AuditLogPage() {
       if (from)     params.set('from',     from);
       if (to)       params.set('to',       to);
 
-      const { data } = await superAdminApi().get(`/api/superadmin/audit-log?${params}`);
+      const { data } = await api.get(`/superadmin/audit-log?${params}`);
       setLogs(data.logs);
       setTotal(data.total);
       setPage(pg);
