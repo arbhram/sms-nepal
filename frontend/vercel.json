@@ -1,5 +1,7 @@
 {
   "rewrites": [
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
+    { "source": "/api/:path*",     "destination": "https://sms-nepal.onrender.com/api/:path*" },
+    { "source": "/uploads/:path*", "destination": "https://sms-nepal.onrender.com/uploads/:path*" },
+    { "source": "/((?!api/).*)",   "destination": "/index.html" }
   ]
 }
