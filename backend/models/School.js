@@ -11,11 +11,13 @@ const schoolSchema = new mongoose.Schema(
     trialEndsAt: { type: Date, default: () => new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) },
 
     // Branding
-    address:      { type: String, default: '' },
-    phone:        { type: String, default: '' },
-    email:        { type: String, default: '' },
-    logoUrl:      { type: String, default: '' },
-    primaryColor: { type: String, default: '#0c7fff' },
+    address:        { type: String, default: '' },
+    city:           { type: String, default: '' },
+    phone:          { type: String, default: '' },
+    email:          { type: String, default: '' },
+    logoUrl:        { type: String, default: '' },
+    primaryColor:   { type: String, default: '#0c7fff' },
+    secondaryColor: { type: String, default: '#f59e0b' },
 
     // Locale
     timezone: { type: String, default: 'Asia/Kathmandu' },
@@ -24,6 +26,9 @@ const schoolSchema = new mongoose.Schema(
     // Custom domain (premium feature)
     customDomain:         { type: String, default: null, lowercase: true, trim: true },
     customDomainVerified: { type: Boolean, default: false },
+
+    // Soft delete
+    deletedAt: { type: Date, default: null },
   },
   {
     timestamps: true,

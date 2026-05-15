@@ -6,10 +6,16 @@ import Student from '../../models/Student.js';
 import Teacher from '../../models/Teacher.js';
 import { audit } from '../../utils/auditLogger.js';
 import { provisionSchool } from '../../services/schoolProvisioningService.js';
+import upload from '../../config/upload.js';
 
 // Fields the super admin may update on a school.
 // Excludes: subdomain, isActive (use suspend/activate), _id, createdAt, schoolId.
-const PATCHABLE = ['name', 'email', 'phone', 'address', 'plan', 'trialEndsAt', 'customDomain', 'timezone', 'currency'];
+const PATCHABLE = [
+  'name', 'email', 'phone', 'address', 'city', 'plan', 'trialEndsAt',
+  'customDomain', 'timezone', 'currency', 'primaryColor', 'secondaryColor',
+];
+
+const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -124,6 +130,9 @@ export const updateSchool = asyncHandler(async (req, res) => {
 
   for (const field of PATCHABLE) {
     if (req.body[field] === undefined) continue;
+    if ((field === 'primaryColor' || field === 'secondaryColor') && !HEX_COLOR.test(req.body[field])) {
+      res.status(400); throw new Error(`${field} must be a valid hex color (e.g. #0ABAB5)`);
+    }
     const incoming = field === 'trialEndsAt' ? new Date(req.body[field]) : req.body[field];
     const current  = school[field];
     // Only record and apply fields that actually changed
@@ -287,4 +296,79 @@ export const verifySchoolDomain = asyncHandler(async (req, res) => {
   });
 
   res.json({ message: 'Custom domain verified', customDomain: school.customDomain });
+});
+
+// ── POST /api/superadmin/schools/:id/logo ────────────────────────────────────
+export const uploadSchoolLogo = [
+  upload.single('logo'),
+  asyncHandler(async (req, res) => {
+    const school = await School.findById(req.params.id);
+    if (!school) { res.status(404); throw new Error('School not found'); }
+    if (!req.file) { res.status(400); throw new Error('No file uploaded'); }
+
+    // Cloudinary: req.file.path is the CDN URL; disk fallback: build a local URL
+    const logoUrl = req.file.path || `/uploads/${req.file.filename}`;
+    const before = { logoUrl: school.logoUrl };
+    school.logoUrl = logoUrl;
+    await school.save();
+
+    audit({
+      req,
+      action:     'school.logo_updated',
+      targetType: 'school',
+      targetId:   school._id,
+      targetName: school.name,
+      schoolId:   school._id,
+      changes:    { before, after: { logoUrl } },
+    });
+
+    res.json({ logoUrl, school });
+  }),
+];
+
+// ── DELETE /api/superadmin/schools/:id ───────────────────────────────────────
+export const softDeleteSchool = asyncHandler(async (req, res) => {
+  const school = await School.findById(req.params.id);
+  if (!school) { res.status(404); throw new Error('School not found'); }
+  if (school.deletedAt) { res.status(400); throw new Error('School is already deleted'); }
+
+  school.deletedAt = new Date();
+  school.isActive  = false;
+  await school.save();
+
+  audit({
+    req,
+    action:     'school.deleted',
+    targetType: 'school',
+    targetId:   school._id,
+    targetName: school.name,
+    schoolId:   school._id,
+    reason:     req.body.reason,
+    changes:    { after: { deletedAt: school.deletedAt, isActive: false } },
+  });
+
+  res.json({ message: `School "${school.name}" soft-deleted`, school });
+});
+
+// ── POST /api/superadmin/schools/:id/restore ─────────────────────────────────
+export const restoreSchool = asyncHandler(async (req, res) => {
+  const school = await School.findById(req.params.id);
+  if (!school) { res.status(404); throw new Error('School not found'); }
+  if (!school.deletedAt) { res.status(400); throw new Error('School is not deleted'); }
+
+  school.deletedAt = null;
+  school.isActive  = true;
+  await school.save();
+
+  audit({
+    req,
+    action:     'school.restored',
+    targetType: 'school',
+    targetId:   school._id,
+    targetName: school.name,
+    schoolId:   school._id,
+    changes:    { after: { deletedAt: null, isActive: true } },
+  });
+
+  res.json({ message: `School "${school.name}" restored`, school });
 });

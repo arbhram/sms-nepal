@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
@@ -41,9 +41,9 @@ function CreateSchoolModal({ onClose, onCreated }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
-      <div className="bg-slate-800 border border-white/10 rounded-xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
-        <h2 className="font-semibold text-white mb-5">Create School</h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+      <div className="bg-white border border-slate-200 rounded-xl shadow-xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
+        <h2 className="font-semibold text-slate-900 mb-5">Create School</h2>
         <form onSubmit={handleSubmit} className="space-y-3">
           {[
             { key: 'name',      label: 'School Name', placeholder: 'Saraswati Public School', required: true },
@@ -53,51 +53,51 @@ function CreateSchoolModal({ onClose, onCreated }) {
             { key: 'address',   label: 'Address',     placeholder: 'Kathmandu, Nepal' },
           ].map(({ key, label, placeholder, required }) => (
             <div key={key}>
-              <label className="block text-xs text-slate-400 mb-1">{label}{required && ' *'}</label>
+              <label className="block text-xs text-slate-500 mb-1">{label}{required && ' *'}</label>
               <input value={form[key]} onChange={set(key)} placeholder={placeholder} required={required}
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500/50" />
+                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500/20" />
               {key === 'subdomain' && form.subdomain && (
-                <p className="text-xs text-slate-500 mt-1">{form.subdomain}.myschoolsaas.com</p>
+                <p className="text-xs text-slate-400 mt-1">{form.subdomain}.wephas.com</p>
               )}
             </div>
           ))}
-          <hr className="border-white/10" />
-          <p className="text-xs text-slate-400 font-medium">Admin Account</p>
+          <hr className="border-slate-100" />
+          <p className="text-xs text-slate-500 font-medium">Admin Account</p>
           {[
             { key: 'adminName',     label: 'Admin Name',     placeholder: 'Ramesh Sharma' },
             { key: 'adminEmail',    label: 'Admin Email',    placeholder: 'admin@school.com', required: true },
             { key: 'adminPassword', label: 'Admin Password', placeholder: 'min 6 characters', required: true },
           ].map(({ key, label, placeholder, required }) => (
             <div key={key}>
-              <label className="block text-xs text-slate-400 mb-1">{label}{required && ' *'}</label>
+              <label className="block text-xs text-slate-500 mb-1">{label}{required && ' *'}</label>
               <input type={key === 'adminPassword' ? 'password' : 'text'}
                 value={form[key]} onChange={set(key)} placeholder={placeholder} required={required}
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500/50" />
+                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500/20" />
             </div>
           ))}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs text-slate-400 mb-1">Plan</label>
+              <label className="block text-xs text-slate-500 mb-1">Plan</label>
               <select value={form.plan} onChange={set('plan')}
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500/50">
+                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-teal-500">
                 <option value="trial">Trial</option>
                 <option value="starter">Starter</option>
                 <option value="pro">Pro</option>
               </select>
             </div>
             <div>
-              <label className="block text-xs text-slate-400 mb-1">Trial days</label>
+              <label className="block text-xs text-slate-500 mb-1">Trial days</label>
               <input type="number" value={form.trialDays} onChange={set('trialDays')} min="1" max="365"
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500/50" />
+                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-teal-500" />
             </div>
           </div>
           <div className="flex gap-3 pt-2">
             <button type="button" onClick={onClose}
-              className="flex-1 py-2 rounded-lg border border-white/10 text-sm text-slate-400 hover:text-white hover:border-white/20 transition">
+              className="flex-1 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 hover:bg-slate-50 transition">
               Cancel
             </button>
             <button type="submit" disabled={saving}
-              className="flex-1 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-black font-medium text-sm transition disabled:opacity-50">
+              className="flex-1 py-2 rounded-lg bg-teal-500 hover:bg-teal-600 text-white font-medium text-sm transition disabled:opacity-50">
               {saving ? 'Creating…' : 'Create School'}
             </button>
           </div>
@@ -128,23 +128,23 @@ function SuspendModal({ school, onClose, onDone }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
-      <div className="bg-slate-800 border border-white/10 rounded-xl w-full max-w-sm p-6">
-        <h2 className="font-semibold text-white mb-1">Suspend School</h2>
-        <p className="text-xs text-slate-400 mb-4">This will immediately block all logins for <span className="text-white">{school.name}</span>.</p>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+      <div className="bg-white border border-slate-200 rounded-xl shadow-xl w-full max-w-sm p-6">
+        <h2 className="font-semibold text-slate-900 mb-1">Suspend School</h2>
+        <p className="text-xs text-slate-500 mb-4">This will immediately block all logins for <span className="text-slate-900 font-medium">{school.name}</span>.</p>
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
-            <label className="block text-xs text-slate-400 mb-1">Reason (optional)</label>
+            <label className="block text-xs text-slate-500 mb-1">Reason (optional)</label>
             <input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="e.g. Non-payment"
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-rose-500/50" />
+              className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-rose-400" />
           </div>
           <div className="flex gap-3 pt-1">
             <button type="button" onClick={onClose}
-              className="flex-1 py-2 rounded-lg border border-white/10 text-sm text-slate-400 hover:text-white transition">
+              className="flex-1 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 hover:bg-slate-50 transition">
               Cancel
             </button>
             <button type="submit" disabled={saving}
-              className="flex-1 py-2 rounded-lg bg-rose-500 hover:bg-rose-400 text-white font-medium text-sm transition disabled:opacity-50">
+              className="flex-1 py-2 rounded-lg bg-rose-500 hover:bg-rose-600 text-white font-medium text-sm transition disabled:opacity-50">
               {saving ? 'Suspending…' : 'Suspend'}
             </button>
           </div>
@@ -175,23 +175,23 @@ function ExtendTrialModal({ school, onClose, onDone }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
-      <div className="bg-slate-800 border border-white/10 rounded-xl w-full max-w-sm p-6">
-        <h2 className="font-semibold text-white mb-1">Extend Trial</h2>
-        <p className="text-xs text-slate-400 mb-4"><span className="text-white">{school.name}</span></p>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+      <div className="bg-white border border-slate-200 rounded-xl shadow-xl w-full max-w-sm p-6">
+        <h2 className="font-semibold text-slate-900 mb-1">Extend Trial</h2>
+        <p className="text-xs text-slate-500 mb-4"><span className="text-slate-900 font-medium">{school.name}</span></p>
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
-            <label className="block text-xs text-slate-400 mb-1">Days to add *</label>
+            <label className="block text-xs text-slate-500 mb-1">Days to add *</label>
             <input type="number" value={days} onChange={(e) => setDays(e.target.value)} min="1" max="365" required
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500/50" />
+              className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-teal-500" />
           </div>
           <div className="flex gap-3 pt-1">
             <button type="button" onClick={onClose}
-              className="flex-1 py-2 rounded-lg border border-white/10 text-sm text-slate-400 hover:text-white transition">
+              className="flex-1 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 hover:bg-slate-50 transition">
               Cancel
             </button>
             <button type="submit" disabled={saving}
-              className="flex-1 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-black font-medium text-sm transition disabled:opacity-50">
+              className="flex-1 py-2 rounded-lg bg-teal-500 hover:bg-teal-600 text-white font-medium text-sm transition disabled:opacity-50">
               {saving ? 'Extending…' : 'Extend'}
             </button>
           </div>
@@ -201,22 +201,36 @@ function ExtendTrialModal({ school, onClose, onDone }) {
   );
 }
 
+// ── Plan badge ────────────────────────────────────────────────────────────────
+function PlanBadge({ plan }) {
+  const map = {
+    trial:      'bg-amber-50 text-amber-700 ring-1 ring-amber-200',
+    starter:    'bg-sky-50 text-sky-700 ring-1 ring-sky-200',
+    pro:        'bg-violet-50 text-violet-700 ring-1 ring-violet-200',
+    enterprise: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200',
+  };
+  return (
+    <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${map[plan] || 'bg-slate-100 text-slate-600'}`}>
+      {plan}
+    </span>
+  );
+}
+
 // ── Main Dashboard ────────────────────────────────────────────────────────────
 export default function SuperAdminDashboard() {
   const navigate = useNavigate();
-  const [metrics, setMetrics]       = useState(null);
-  const [schools, setSchools]       = useState([]);
-  const [total, setTotal]           = useState(0);
-  const [page, setPage]             = useState(1);
-  const [loading, setLoading]       = useState(true);
-  const [showCreate, setShowCreate] = useState(false);
-  const [suspendTarget, setSuspendTarget]     = useState(null);
-  const [extendTarget, setExtendTarget]       = useState(null);
+  const [metrics, setMetrics]     = useState(null);
+  const [schools, setSchools]     = useState([]);
+  const [total, setTotal]         = useState(0);
+  const [page, setPage]           = useState(1);
+  const [loading, setLoading]     = useState(true);
+  const [showCreate, setShowCreate]       = useState(false);
+  const [suspendTarget, setSuspendTarget] = useState(null);
+  const [extendTarget, setExtendTarget]   = useState(null);
 
-  // Filters
-  const [search, setSearch]   = useState('');
-  const [status, setStatus]   = useState('');
-  const [plan,   setPlan]     = useState('');
+  const [search, setSearch] = useState('');
+  const [status, setStatus] = useState('');
+  const [plan,   setPlan]   = useState('');
 
   const LIMIT = 10;
   const user = JSON.parse(localStorage.getItem('superAdminUser') || '{}');
@@ -241,7 +255,6 @@ export default function SuperAdminDashboard() {
     }
   }, [search, status, plan, navigate]);
 
-  // Initial load — metrics + schools in parallel
   useEffect(() => {
     const api = superAdminApi();
     Promise.all([
@@ -260,7 +273,6 @@ export default function SuperAdminDashboard() {
       .finally(() => setLoading(false));
   }, [navigate]);
 
-  // Re-fetch when filters change (debounced via useEffect dep)
   useEffect(() => {
     fetchSchools(1);
   }, [status, plan]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -288,31 +300,26 @@ export default function SuperAdminDashboard() {
 
   const pages = Math.ceil(total / LIMIT);
 
-  const planBadge = (p) => {
-    const map = {
-      trial:   'bg-amber-500/20 text-amber-300',
-      starter: 'bg-sky-500/20 text-sky-300',
-      pro:     'bg-violet-500/20 text-violet-300',
-    };
-    return map[p] || 'bg-white/10 text-slate-300';
-  };
-
   return (
-    <div className="min-h-screen bg-slate-900 text-white">
+    <div className="min-h-screen bg-slate-50 text-slate-900">
       {/* Navbar */}
-      <header className="border-b border-white/10 px-6 py-4 flex items-center justify-between">
+      <header className="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between sticky top-0 z-10">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <div className="w-8 h-8 rounded-lg bg-teal-50 border border-teal-200 flex items-center justify-center">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0ABAB5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
             </svg>
           </div>
-          <span className="font-semibold text-sm">Super Admin Console</span>
+          <span className="font-semibold text-sm text-slate-900">Wephas Console</span>
         </div>
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-slate-400">{user.name}</span>
+        <div className="flex items-center gap-3">
+          <Link to="/superadmin/audit-log"
+            className="text-xs text-slate-500 hover:text-slate-900 transition px-3 py-1.5 rounded-lg border border-slate-200 hover:border-slate-300">
+            Audit Log
+          </Link>
+          <span className="text-sm text-slate-500">{user.name}</span>
           <button onClick={handleLogout}
-            className="text-xs text-slate-400 hover:text-white transition px-3 py-1.5 rounded-lg border border-white/10 hover:border-white/20">
+            className="text-xs text-slate-500 hover:text-slate-900 transition px-3 py-1.5 rounded-lg border border-slate-200 hover:border-slate-300">
             Logout
           </button>
         </div>
@@ -323,40 +330,38 @@ export default function SuperAdminDashboard() {
         {metrics && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
             {[
-              { label: 'Total Schools',  value: metrics.totalSchools  },
-              { label: 'Active Schools', value: metrics.activeSchools },
-              { label: 'On Trial',       value: metrics.trialSchools  },
-              { label: 'Total Users',    value: metrics.totalUsers    },
+              { label: 'Total Schools',  value: metrics.totalSchools,  color: 'text-slate-900' },
+              { label: 'Active Schools', value: metrics.activeSchools, color: 'text-emerald-600' },
+              { label: 'On Trial',       value: metrics.trialSchools,  color: 'text-amber-600' },
+              { label: 'Total Users',    value: metrics.totalUsers,    color: 'text-teal-600' },
             ].map((m) => (
-              <div key={m.label} className="bg-white/5 border border-white/10 rounded-xl p-4">
-                <p className="text-2xl font-bold text-white">{m.value}</p>
-                <p className="text-xs text-slate-400 mt-1">{m.label}</p>
+              <div key={m.label} className="bg-white border border-slate-200 rounded-xl p-4">
+                <p className={`text-2xl font-bold ${m.color}`}>{m.value}</p>
+                <p className="text-xs text-slate-500 mt-1">{m.label}</p>
               </div>
             ))}
           </div>
         )}
 
         {/* Schools table */}
-        <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
+        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
           {/* Toolbar */}
-          <div className="px-5 py-4 border-b border-white/10 flex flex-wrap items-center gap-3">
-            {/* Search */}
+          <div className="px-5 py-4 border-b border-slate-100 flex flex-wrap items-center gap-3">
             <form onSubmit={handleSearch} className="flex gap-2 flex-1 min-w-[200px]">
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search name or subdomain…"
-                className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500/50"
+                className="flex-1 border border-slate-200 rounded-lg px-3 py-1.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500/20"
               />
               <button type="submit"
-                className="text-xs px-3 py-1.5 rounded-lg border border-white/10 text-slate-300 hover:text-white hover:border-white/20 transition">
+                className="text-xs px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition">
                 Search
               </button>
             </form>
 
-            {/* Status filter */}
             <select value={status} onChange={(e) => setStatus(e.target.value)}
-              className="bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-amber-500/50">
+              className="border border-slate-200 rounded-lg px-3 py-1.5 text-sm text-slate-700 focus:outline-none focus:border-teal-500 bg-white">
               <option value="">All status</option>
               <option value="active">Active</option>
               <option value="suspended">Suspended</option>
@@ -364,9 +369,8 @@ export default function SuperAdminDashboard() {
               <option value="expired">Expired</option>
             </select>
 
-            {/* Plan filter */}
             <select value={plan} onChange={(e) => setPlan(e.target.value)}
-              className="bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-amber-500/50">
+              className="border border-slate-200 rounded-lg px-3 py-1.5 text-sm text-slate-700 focus:outline-none focus:border-teal-500 bg-white">
               <option value="">All plans</option>
               <option value="trial">Trial</option>
               <option value="starter">Starter</option>
@@ -374,7 +378,7 @@ export default function SuperAdminDashboard() {
             </select>
 
             <button onClick={() => setShowCreate(true)}
-              className="text-xs px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-black font-medium transition whitespace-nowrap">
+              className="text-xs px-3 py-1.5 rounded-lg bg-teal-500 hover:bg-teal-600 text-white font-medium transition whitespace-nowrap">
               + New School
             </button>
           </div>
@@ -383,7 +387,7 @@ export default function SuperAdminDashboard() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-white/10 text-slate-400 text-xs uppercase tracking-wider">
+                <tr className="border-b border-slate-100 text-slate-500 text-xs uppercase tracking-wider bg-slate-50">
                   <th className="px-5 py-3 text-left font-medium">Name</th>
                   <th className="px-5 py-3 text-left font-medium">Subdomain</th>
                   <th className="px-5 py-3 text-left font-medium">Plan</th>
@@ -396,46 +400,50 @@ export default function SuperAdminDashboard() {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={7} className="px-5 py-8 text-center text-slate-500 text-xs">Loading…</td>
+                    <td colSpan={7} className="px-5 py-10 text-center text-slate-400 text-xs">Loading…</td>
                   </tr>
                 ) : schools.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-5 py-8 text-center text-slate-500 text-xs">No schools found</td>
+                    <td colSpan={7} className="px-5 py-10 text-center text-slate-400 text-xs">No schools found</td>
                   </tr>
                 ) : schools.map((s) => (
-                  <tr key={s._id} className="border-b border-white/5 hover:bg-white/[0.03]">
-                    <td className="px-5 py-3 font-medium">{s.name}</td>
-                    <td className="px-5 py-3 text-slate-400 font-mono text-xs">{s.subdomain}</td>
-                    <td className="px-5 py-3">
-                      <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${planBadge(s.plan)}`}>
-                        {s.plan}
-                      </span>
+                  <tr key={s._id} className="border-b border-slate-50 hover:bg-slate-50/60 transition-colors">
+                    <td className="px-5 py-3 font-medium">
+                      <Link to={`/superadmin/schools/${s._id}`} className="text-teal-600 hover:text-teal-700 hover:underline">
+                        {s.name}
+                      </Link>
                     </td>
-                    <td className="px-5 py-3 text-slate-400">{s.userCount ?? '—'}</td>
-                    <td className="px-5 py-3 text-slate-400 text-xs">
+                    <td className="px-5 py-3 text-slate-500 font-mono text-xs">{s.subdomain}</td>
+                    <td className="px-5 py-3"><PlanBadge plan={s.plan} /></td>
+                    <td className="px-5 py-3 text-slate-500">{s.userCount ?? '—'}</td>
+                    <td className="px-5 py-3 text-slate-500 text-xs">
                       {s.trialEndsAt ? new Date(s.trialEndsAt).toLocaleDateString() : '—'}
                     </td>
                     <td className="px-5 py-3">
-                      <span className={`inline-flex items-center gap-1.5 text-xs ${s.isActive ? 'text-emerald-400' : 'text-rose-400'}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${s.isActive ? 'bg-emerald-400' : 'bg-rose-400'}`} />
+                      <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${s.isActive ? 'text-emerald-600' : 'text-rose-500'}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${s.isActive ? 'bg-emerald-500' : 'bg-rose-400'}`} />
                         {s.isActive ? 'Active' : 'Suspended'}
                       </span>
                     </td>
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-2">
+                        <Link to={`/superadmin/schools/${s._id}`}
+                          className="text-xs px-2 py-1 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 transition">
+                          View
+                        </Link>
                         {s.isActive ? (
                           <button onClick={() => setSuspendTarget(s)}
-                            className="text-xs px-2 py-1 rounded-lg border border-rose-500/30 text-rose-400 hover:bg-rose-500/10 transition">
+                            className="text-xs px-2 py-1 rounded-lg border border-rose-200 text-rose-500 hover:bg-rose-50 transition">
                             Suspend
                           </button>
                         ) : (
                           <button onClick={() => handleActivate(s)}
-                            className="text-xs px-2 py-1 rounded-lg border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 transition">
+                            className="text-xs px-2 py-1 rounded-lg border border-emerald-200 text-emerald-600 hover:bg-emerald-50 transition">
                             Activate
                           </button>
                         )}
                         <button onClick={() => setExtendTarget(s)}
-                          className="text-xs px-2 py-1 rounded-lg border border-sky-500/30 text-sky-400 hover:bg-sky-500/10 transition">
+                          className="text-xs px-2 py-1 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 transition">
                           + Trial
                         </button>
                       </div>
@@ -448,16 +456,16 @@ export default function SuperAdminDashboard() {
 
           {/* Pagination */}
           {pages > 1 && (
-            <div className="px-5 py-3 border-t border-white/10 flex items-center justify-between text-xs text-slate-400">
+            <div className="px-5 py-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
               <span>{total} schools</span>
               <div className="flex items-center gap-2">
                 <button disabled={page <= 1} onClick={() => fetchSchools(page - 1)}
-                  className="px-2 py-1 rounded border border-white/10 disabled:opacity-30 hover:border-white/20 transition">
+                  className="px-2 py-1 rounded border border-slate-200 disabled:opacity-30 hover:bg-slate-50 transition">
                   ←
                 </button>
                 <span>Page {page} of {pages}</span>
                 <button disabled={page >= pages} onClick={() => fetchSchools(page + 1)}
-                  className="px-2 py-1 rounded border border-white/10 disabled:opacity-30 hover:border-white/20 transition">
+                  className="px-2 py-1 rounded border border-slate-200 disabled:opacity-30 hover:bg-slate-50 transition">
                   →
                 </button>
               </div>
@@ -466,7 +474,6 @@ export default function SuperAdminDashboard() {
         </div>
       </main>
 
-      {/* Modals */}
       {showCreate && (
         <CreateSchoolModal
           onClose={() => setShowCreate(false)}

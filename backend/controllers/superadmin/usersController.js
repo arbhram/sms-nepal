@@ -13,17 +13,34 @@ function generateTempPassword() {
 // ── GET /api/superadmin/schools/:id/users ────────────────────────────────────
 export const getSchoolUsers = asyncHandler(async (req, res) => {
   const { id } = req.params;
+  const { role, search, page = 1, limit = 20 } = req.query;
 
   const school = await School.findById(id).lean();
   if (!school) { res.status(404); throw new Error('School not found'); }
 
-  const users = await User.find({ schoolId: new mongoose.Types.ObjectId(id) })
-    .setOptions({ _skipTenant: true })
-    .select('-password')
-    .sort({ role: 1, name: 1 })
-    .lean();
+  const filter = { schoolId: new mongoose.Types.ObjectId(id) };
+  if (role)   filter.role = role;
+  if (search) filter.$or = [
+    { name:  { $regex: search, $options: 'i' } },
+    { email: { $regex: search, $options: 'i' } },
+  ];
 
-  res.json(users);
+  const pageNum  = Math.max(1, Number(page));
+  const limitNum = Math.min(100, Math.max(1, Number(limit)));
+  const skip     = (pageNum - 1) * limitNum;
+
+  const [total, users] = await Promise.all([
+    User.countDocuments(filter).setOptions({ _skipTenant: true }),
+    User.find(filter)
+      .setOptions({ _skipTenant: true })
+      .select('-password')
+      .sort({ role: 1, name: 1 })
+      .skip(skip)
+      .limit(limitNum)
+      .lean(),
+  ]);
+
+  res.json({ users, total, page: pageNum, limit: limitNum, pages: Math.ceil(total / limitNum) });
 });
 
 // ── POST /api/superadmin/schools/:id/users/:userId/reset-password ─────────────

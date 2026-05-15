@@ -6,6 +6,8 @@ import RequestDemoPage from './pages/RequestDemoPage.jsx';
 import FindSchoolPage from './pages/FindSchoolPage.jsx';
 import SuperAdminLogin from './pages/superadmin/SuperAdminLogin.jsx';
 import SuperAdminDashboard from './pages/superadmin/SuperAdminDashboard.jsx';
+import SchoolDetailPage from './pages/superadmin/SchoolDetailPage.jsx';
+import AuditLogPage from './pages/superadmin/AuditLogPage.jsx';
 import Layout from './components/layout/Layout.jsx';
 import Login from './pages/auth/Login.jsx';
 import Dashboard from './pages/dashboard/Dashboard.jsx';
@@ -107,6 +109,8 @@ export default function App() {
       <Routes>
         <Route path="/superadmin/login" element={<SuperAdminLogin />} />
         <Route path="/superadmin/dashboard" element={<ProtectedSuperAdmin><SuperAdminDashboard /></ProtectedSuperAdmin>} />
+        <Route path="/superadmin/schools/:id" element={<ProtectedSuperAdmin><SchoolDetailPage /></ProtectedSuperAdmin>} />
+        <Route path="/superadmin/audit-log" element={<ProtectedSuperAdmin><AuditLogPage /></ProtectedSuperAdmin>} />
         <Route path="*" element={<Navigate to="/superadmin/login" replace />} />
       </Routes>
     );
@@ -190,6 +194,8 @@ export default function App() {
       {/* Super admin — accessible from any domain */}
       <Route path="/superadmin/login" element={<SuperAdminLogin />} />
       <Route path="/superadmin/dashboard" element={<ProtectedSuperAdmin><SuperAdminDashboard /></ProtectedSuperAdmin>} />
+      <Route path="/superadmin/schools/:id" element={<ProtectedSuperAdmin><SchoolDetailPage /></ProtectedSuperAdmin>} />
+      <Route path="/superadmin/audit-log" element={<ProtectedSuperAdmin><AuditLogPage /></ProtectedSuperAdmin>} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

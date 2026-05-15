@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import School from '../models/School.js';
 import SuperAdmin from '../models/SuperAdmin.js';
 import User from '../models/User.js';
+import AuditLog from '../models/AuditLog.js';
 
 // School lifecycle and provisioning are handled in controllers/superadmin/schoolsController.js
 
@@ -47,4 +48,43 @@ export const getMetrics = asyncHandler(async (_req, res) => {
   ]);
 
   res.json({ totalSchools, activeSchools, trialSchools, totalUsers });
+});
+
+// @desc   Paginated audit log with filters
+// @route  GET /api/superadmin/audit-log
+export const getAuditLog = asyncHandler(async (req, res) => {
+  const {
+    schoolId,
+    action,
+    page  = 1,
+    limit = 50,
+    from,
+    to,
+  } = req.query;
+
+  const filter = {};
+  if (schoolId) filter.schoolId = schoolId;
+  if (action)   filter.action   = { $regex: action, $options: 'i' };
+  if (from || to) {
+    filter.createdAt = {};
+    if (from) filter.createdAt.$gte = new Date(from);
+    if (to)   filter.createdAt.$lte = new Date(to);
+  }
+
+  const pageNum  = Math.max(1, Number(page));
+  const limitNum = Math.min(200, Math.max(1, Number(limit)));
+  const skip     = (pageNum - 1) * limitNum;
+
+  const [total, logs] = await Promise.all([
+    AuditLog.countDocuments(filter),
+    AuditLog.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limitNum).lean(),
+  ]);
+
+  res.json({
+    logs,
+    total,
+    page:  pageNum,
+    limit: limitNum,
+    pages: Math.ceil(total / limitNum),
+  });
 });

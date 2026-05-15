@@ -1,6 +1,6 @@
 import express from 'express';
 import rateLimit from 'express-rate-limit';
-import { superAdminLogin, getMetrics } from '../controllers/superAdminController.js';
+import { superAdminLogin, getMetrics, getAuditLog } from '../controllers/superAdminController.js';
 import {
   getSchools,
   getSchoolById,
@@ -10,6 +10,9 @@ import {
   activateSchool,
   extendTrial,
   verifySchoolDomain,
+  uploadSchoolLogo,
+  softDeleteSchool,
+  restoreSchool,
 } from '../controllers/superadmin/schoolsController.js';
 import {
   getSchoolUsers,
@@ -34,8 +37,9 @@ router.post('/login', loginLimiter, superAdminLogin);
 // ── All routes below require super admin auth ─────────────────────────────────
 router.use(superAdminAuth);
 
-// Metrics — read-only, all roles can access
-router.get('/metrics', getMetrics);
+// Metrics and audit log — read-only, all roles can access
+router.get('/metrics',   getMetrics);
+router.get('/audit-log', getAuditLog);
 
 // Schools — read access for all roles, write restricted
 router.get('/schools',     getSchools);
@@ -47,6 +51,9 @@ router.post('/schools/:id/suspend',      requireRole('owner', 'admin'), suspendS
 router.post('/schools/:id/activate',     requireRole('owner', 'admin'), activateSchool);
 router.post('/schools/:id/extend-trial', requireRole('owner', 'admin'), extendTrial);
 router.put('/schools/:id/verify-domain', requireRole('owner', 'admin'), verifySchoolDomain);
+router.post('/schools/:id/logo',         requireRole('owner', 'admin'), ...uploadSchoolLogo);
+router.delete('/schools/:id',            requireRole('owner'),          softDeleteSchool);
+router.post('/schools/:id/restore',      requireRole('owner'),          restoreSchool);
 
 // Users within a school
 router.get('/schools/:id/users',                                               getSchoolUsers);
