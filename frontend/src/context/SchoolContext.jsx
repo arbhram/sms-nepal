@@ -10,7 +10,11 @@ export function SchoolProvider({ children }) {
   useEffect(() => {
     axios
       .get('/api/school/current')
-      .then((res) => setSchool(res.data))   // null on bare localhost, object on subdomain
+      .then((res) => {
+        // Only accept a real school object — guards against Vercel SPA HTML fallback
+        const d = res.data;
+        setSchool(d && typeof d === 'object' && d._id ? d : null);
+      })
       .catch(() => setSchool(null))
       .finally(() => setLoading(false));
   }, []);
