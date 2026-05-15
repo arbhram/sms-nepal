@@ -187,6 +187,10 @@ export default function App() {
         <Route path="accounting/ledger/:id"         element={<Ledger />} />
       </Route>
 
+      {/* Super admin — accessible from any domain */}
+      <Route path="/superadmin/login" element={<SuperAdminLogin />} />
+      <Route path="/superadmin/dashboard" element={<ProtectedSuperAdmin><SuperAdminDashboard /></ProtectedSuperAdmin>} />
+
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
     </SchoolProvider>
