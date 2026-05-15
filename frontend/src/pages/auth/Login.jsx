@@ -17,8 +17,8 @@ export default function Login() {
   // schoolCode input is only needed when there's no subdomain (bare localhost dev)
   const needsSchoolCode = !school;
 
-  // Pre-fill school code from ?school= query param (set by FindSchoolPage on localhost)
-  const prefilledSchool = searchParams.get('school') || 'myschool';
+  // Pre-fill school code from ?school= query param
+  const prefilledSchool = searchParams.get('school') || '';
 
   const formik = useFormik({
     initialValues: { schoolCode: prefilledSchool, email: '', password: '' },
@@ -203,7 +203,7 @@ export default function Login() {
 
             <form onSubmit={formik.handleSubmit} className="space-y-4">
 
-              {/* School code — only shown when no subdomain is detected (bare localhost) */}
+              {/* School code — only shown when no subdomain is detected */}
               {needsSchoolCode && (
                 <>
                   <div className="flex items-center gap-3 rounded-full px-5 py-3.5 bg-slate-50 border border-slate-200 transition-all focus-within:border-brand-400 focus-within:ring-2 focus-within:ring-brand-100">
@@ -214,13 +214,16 @@ export default function Login() {
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
                       value={formik.values.schoolCode}
-                      placeholder="School code"
+                      placeholder="School code (e.g. saraswati)"
                       className="flex-1 bg-transparent text-sm text-slate-800 placeholder-slate-400 outline-none"
                     />
                   </div>
                   {formik.errors.schoolCode && formik.touched.schoolCode && (
                     <p className="text-[11px] text-rose-500 -mt-2 pl-5">{formik.errors.schoolCode}</p>
                   )}
+                  <p className="text-[11px] text-slate-400 -mt-1 pl-5">
+                    Your school's unique code — ask your administrator if you don't know it.
+                  </p>
                 </>
               )}
 
