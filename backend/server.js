@@ -1,6 +1,15 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+// Fail fast on missing secrets — avoids cryptic 500s at runtime
+const REQUIRED = ['MONGO_URI', 'JWT_SECRET', 'SUPER_ADMIN_JWT_SECRET'];
+const missing = REQUIRED.filter((k) => !process.env[k]);
+if (missing.length) {
+  console.error(`[STARTUP] Missing required environment variables: ${missing.join(', ')}`);
+  console.error('[STARTUP] Set them in Render → Environment before starting the server.');
+  process.exit(1);
+}
+
 import mongoose from 'mongoose';
 import { tenantPlugin } from './tenant/tenantPlugin.js';
 
