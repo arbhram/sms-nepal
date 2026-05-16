@@ -6,9 +6,9 @@ import { Exam, Result } from '../models/Exam.js';
 
 export const getMyProfile = asyncHandler(async (req, res) => {
   const studentId = req.user.linkedStudents?.[0];
+  if (!studentId) return res.json(null);
   const student = await Student.findById(studentId).populate('class', 'name sections');
-  if (!student) { res.status(404); throw new Error('Student profile not found'); }
-  res.json(student);
+  res.json(student || null);
 });
 
 export const getMyFees = asyncHandler(async (req, res) => {
@@ -39,8 +39,9 @@ export const getMyResults = asyncHandler(async (req, res) => {
 
 export const getMyExams = asyncHandler(async (req, res) => {
   const studentId = req.user.linkedStudents?.[0];
+  if (!studentId) return res.json([]);
   const student = await Student.findById(studentId);
-  if (!student) { res.status(404); throw new Error('Student not found'); }
+  if (!student) return res.json([]);
   const exams = await Exam.find({ class: student.class }).populate('class', 'name').sort({ startDate: -1 });
   res.json(exams);
 });
