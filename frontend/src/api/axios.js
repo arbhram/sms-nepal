@@ -1,11 +1,10 @@
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
-// VITE_API_URL overrides everything (set in Vercel env vars when you have api.wephas.com ready).
-// Production without override: use relative /api so Vercel's proxy routes to Render.
-// Dev without override: hit the local backend directly.
+// VITE_API_URL overrides (e.g. for staging). In production the backend lives at
+// api.wephas.com (Render custom domain). In dev hit localhost directly.
 const API_HOST = import.meta.env.VITE_API_URL
-  ?? (import.meta.env.PROD ? '' : 'http://localhost:3001');
+  || (import.meta.env.PROD ? 'https://api.wephas.com' : 'http://localhost:3001');
 
 const api = axios.create({
   baseURL: `${API_HOST}/api`,
