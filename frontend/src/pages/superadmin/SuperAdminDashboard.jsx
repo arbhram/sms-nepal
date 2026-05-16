@@ -251,7 +251,6 @@ export default function SuperAdminDashboard() {
   }, [search, status, plan, navigate]);
 
   useEffect(() => {
-    const api = api;
     Promise.all([
       api.get('/superadmin/metrics'),
       api.get('/superadmin/schools?limit=10'),
