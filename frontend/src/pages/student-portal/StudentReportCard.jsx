@@ -11,7 +11,7 @@ export default function StudentReportCard() {
   const load = async (examId) => {
     setLoading(true);
     try {
-      const studentId = JSON.parse(localStorage.getItem('user') || '{}').linkedStudent;
+      const studentId = JSON.parse(localStorage.getItem('user') || '{}').linkedStudents?.[0];
       if (!studentId) throw new Error('Student not found');
       const params = examId ? { examId } : {};
       const { data: d } = await api.get(`/report-cards/student/${studentId}`, { params });
