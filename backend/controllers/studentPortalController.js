@@ -5,19 +5,21 @@ import Attendance from '../models/Attendance.js';
 import { Exam, Result } from '../models/Exam.js';
 
 export const getMyProfile = asyncHandler(async (req, res) => {
-  const student = await Student.findById(req.user.linkedStudent).populate('class', 'name sections');
+  const studentId = req.user.linkedStudents?.[0];
+  const student = await Student.findById(studentId).populate('class', 'name sections');
   if (!student) { res.status(404); throw new Error('Student profile not found'); }
   res.json(student);
 });
 
 export const getMyFees = asyncHandler(async (req, res) => {
-  const fees = await Fee.find({ student: req.user.linkedStudent }).sort({ createdAt: -1 });
+  const studentId = req.user.linkedStudents?.[0];
+  const fees = await Fee.find({ student: studentId }).sort({ createdAt: -1 });
   res.json(fees);
 });
 
 export const getMyAttendance = asyncHandler(async (req, res) => {
   const { from, to } = req.query;
-  const q = { student: req.user.linkedStudent };
+  const q = { student: req.user.linkedStudents?.[0] };
   if (from && to) q.date = { $gte: new Date(from), $lte: new Date(to) };
   const records = await Attendance.find(q).sort({ date: -1 });
 
@@ -29,14 +31,15 @@ export const getMyAttendance = asyncHandler(async (req, res) => {
 });
 
 export const getMyResults = asyncHandler(async (req, res) => {
-  const results = await Result.find({ student: req.user.linkedStudent })
+  const results = await Result.find({ student: req.user.linkedStudents?.[0] })
     .populate('exam', 'name startDate status class')
     .sort({ createdAt: -1 });
   res.json(results);
 });
 
 export const getMyExams = asyncHandler(async (req, res) => {
-  const student = await Student.findById(req.user.linkedStudent);
+  const studentId = req.user.linkedStudents?.[0];
+  const student = await Student.findById(studentId);
   if (!student) { res.status(404); throw new Error('Student not found'); }
   const exams = await Exam.find({ class: student.class }).populate('class', 'name').sort({ startDate: -1 });
   res.json(exams);

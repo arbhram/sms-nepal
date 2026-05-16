@@ -76,8 +76,10 @@ export const tenantResolver = asyncHandler(async (req, res, next) => {
   const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
   // Deployment-platform hosts (Render, Vercel) are never tenant custom domains
   const isPlatformHost = hostname.endsWith('.onrender.com') || hostname.endsWith('.vercel.app');
+  // e.g. api.wephas.com — first label is reserved, belongs to the platform
+  const isReservedHost = RESERVED.has(hostname.split('.')[0]);
 
-  if (!isApex && !isLocalhost && !isPlatformHost) {
+  if (!isApex && !isLocalhost && !isPlatformHost && !isReservedHost) {
     // Looks like a custom domain (kathmandu-academy.edu.np)
     const school = await School.findOne({
       customDomain: hostname,
